@@ -1,0 +1,469 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow: unset !important;
+}
+
+@font-face {
+  font-family: adeston;
+
+  src: url(../src/assets/FontFamily/Adeston-Serif-Font/Adeston-Serif-Font/adeston-bw9b8.ttf);
+}
+
+/* @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&display=swap'); */
+
+
+@font-face {
+  font-family: dubai-light;
+  src: url(assets/FontFamily/dubai-light)
+}
+
+body {
+  font-size: 15px;
+  line-height: 1.4;
+  font-family: "adeston";
+}
+
+.wanofont_heading {
+  font-family: 'adeston', sans-serif !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h5 {
+  font-family: 'adeston', sans-serif !important;
+}
+
+p,
+button,
+span,
+label {
+  font-family: 'adeston', sans-serif !important;
+}
+
+a {
+  text-decoration: none;
+  color: #000;
+}
+
+li {
+  list-style: none;
+  font-family: 'adeston', sans-serif !important;
+}
+
+.container {
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.container-full {
+  width: 100%;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+.relative {
+  position: relative;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.col-half {
+  width: 48%;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+
+
+
+
+
+
+
+
+
+.w-50 {
+  width: 48% !important;
+}
+
+.w-100 {
+  width: 100% !important;
+}
+
+.common-btn a {
+  display: inline-block;
+  padding: 10px 18px;
+  font-size: 18px;
+  background-color: #000;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.productSlider_section .swiper-pagination {
+  margin-top: 20px !important;
+  display: block;
+}
+
+.productSlider_section .swiper-pagination-bullet {
+  margin-top: 30px !important;
+  width: 40px !important;
+  height: 5px !important;
+  color: #fff !important;
+  border-radius: 5px !important;
+}
+
+.productSlider_section .swiper-pagination-bullet-active {
+  background-color: #473c4f !important;
+}
+
+
+.home_slider_section_here .swiper-pagination-bullet {
+  border: 2px solid #473C4F;
+  width: 12px;
+  height: 12px;
+}
+
+.home_slider_section_here .swiper-pagination-bullet-active {
+  background-color: #fff0db;
+  border: 2px solid #473C4F;
+}
+
+/*  bullet of blogs page  */
+
+
+.blog_section .swiper-pagination {
+  margin-top: 20px !important;
+  display: block;
+}
+
+.blog_section .swiper-pagination-bullet {
+  margin-top: 30px !important;
+  width: 40px !important;
+  height: 5px !important;
+  color: #fff !important;
+  border-radius: 5px !important;
+}
+
+.blog_section .swiper-pagination-bullet-active {
+  background-color: #473c4f !important;
+}
+
+
+/*  decor button  */
+
+
+
+.decor_btn {
+  position: fixed;
+  /* top: 50%; */
+  right: 0;
+  bottom: 10px;
+  /* transform: translateY(-50%); */
+  z-index: 999;
+  /* position: relative; */
+  overflow: hidden;
+}
+
+.decor_btn::before {
+
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -75%;
+  height: 100%;
+  width: 45%;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.6) 30%, rgba(255, 255, 255, 0.6) 70%, rgba(255, 255, 255, 0.3) 100%);
+  transform: skewX(-40deg);
+  animation: shine 1.5s infinite;
+  z-index: 2;
+}
+
+.decor_btn button a {
+  color: #fff;
+  font-size: 18px;
+}
+
+.decor_btn button {
+  background-color: #473c4f;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 0px 5px 5px 0;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+ 
+
+}
+
+/*  watsapp icon */
+
+.btn-whatsapp-pulse {
+  background: #25d366;
+  color: white;
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 0;
+  height: 0;
+  z-index: 999999;
+  padding: 20px;
+  text-decoration: none;
+  border-radius: 50%;
+  animation-name: pulse;
+  animation-duration: 1.5s;
+  animation-timing-function: ease-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5);
+  }
+
+  80% {
+    box-shadow: 0 0 0 14px rgba(37, 211, 102, 0);
+  }
+}
+
+.btn-whatsapp-pulse-border {
+  bottom: 120px;
+  right: 20px;
+  animation-play-state: paused;
+}
+
+.btn-whatsapp-pulse-border::before {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  padding: 25px;
+  border: 5px solid #25d366;
+  opacity: 0.75;
+  color: #fff;
+  animation-name: pulse-border;
+  animation-duration: 1.5s;
+  animation-timing-function: ease-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes pulse-border {
+  0% {
+    padding: 25px;
+    opacity: 0.75;
+  }
+
+  75% {
+    padding: 50px;
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+
+
+/*  call animation  */
+
+.btn-call-pulse .icon {
+  color: #fff !important;
+  position: absolute;
+}
+.btn-whatsapp-pulse .icon{ position: absolute;}
+
+.btn-call-pulse {
+  background: #1d304f;
+  color: white;
+  position: fixed;
+  bottom: 80px;
+  left: 20px;
+  font-size: 20px;
+  z-index: 9999999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 0;
+  height: 0;
+  padding: 20px;
+  text-decoration: none;
+  border-radius: 50%;
+  animation-name: call-pulse;
+  animation-duration: 1.5s;
+  animation-timing-function: ease-out;
+  animation-iteration-count: infinite;
+
+}
+
+.btn-call-pulse .icon {
+  z-index: 10000;
+  color: #fff;
+}
+
+@keyframes call-pulse {
+  0% {
+    box-shadow: 0 0 0 0 #1d304f;
+  }
+
+  80% {
+    box-shadow: 0 0 0 14px rgba(37, 211, 102, 0);
+  }
+}
+
+.btn-call-phone-animate {
+  bottom: 120px;
+  right: 20px;
+  animation-play-state: paused;
+}
+
+.btn-call-::before {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  padding: 25px;
+  border: 5px solid #1d304f;
+  opacity: 0.75;
+  animation-name: phone-animate;
+  animation-duration: 1.5s;
+  animation-timing-function: ease-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes phone-animate {
+  0% {
+    padding: 25px;
+    opacity: 0.75;
+  }
+
+  75% {
+    padding: 50px;
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@media screen and (max-width:757px) {
+  .btn-call-pulse {
+    font-size: 20px;
+    padding: 20px;
+    bottom: 80px;
+  }
+
+  .btn-whatsapp-pulse {
+    font-size: 20px;
+    padding: 20px;
+  }
+}
+
+
+
+
+
+
+/*  common heading css */
+
+.common_headline {
+  padding: 20px 0;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+.agarbatti_img {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.common_headline h2 {
+  font-size: 30px;
+  font-family: "adeston" !important;
+  color: #A18E6C;
+}
+
+
+@media screen and (max-width: 756px) and (min-width: 0px) {
+/* toastify css */
+.Toastify__toast  {
+  font-size: 15px !important;
+  padding: 2px 12px !important;
+--toastify-toast-width : 250px !important;
+
+}
+
+
+.toastify-custom .Toastify__toast-body {
+  margin: 0;
+  padding: 0;
+}
+
+.logo img{
+  width: fit-content;
+  height: 50px;
+}
+.header_section {
+  position: relative !important;
+}
+.decor_banner img{
+  height: 80vh;
+}
+.decor_banner_text{
+  top: 15% !important;
+  left: 50% !important;
+}
+
+.mobile_category .close-btn{
+  width: fit-content;
+   color: #000;
+  background: #fff;
+  padding: 5px;
+}
+
+.mobile_category_header-close{
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+
+}
+
+.category_slides .category_name{
+  font-size: 13px;
+}
+
+
+}

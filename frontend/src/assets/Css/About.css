@@ -1,0 +1,325 @@
+.aboutus_section {
+    padding: 50px 0;
+}
+
+/* background-color: #f9f5f5; */
+.aboutus_section .about_wrapper {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.aboutus_section .about_wrapper img {
+    margin: 0 auto;
+}
+
+
+
+.aboutus_section .feature_content h2 {
+    font-size: 60px;
+    margin-bottom: 20px;
+    color: #A18E6C;
+    font-weight: 400;
+}
+
+.aboutus_section .feature_content h4 {
+    font-size: 17px;
+    color: #989898;
+}
+
+.aboutus_section .feature_content p {
+    font-size: 14px;
+    color: #989898;
+    margin-bottom: 25px;
+    font-family: 'adeston', sans-serif !important;
+}
+
+
+
+
+.about_us_para {
+    font-size: 18px !important;
+    text-align: center;
+    display: flex !important;
+    float: left;
+    max-width: 470px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*  gallery grid  box css */
+
+.gallery_section {
+    padding: 30px 0;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.gallery-grid .image-box img {
+    cursor: pointer;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* decor page css  here */
+
+.decor_section {
+    background-color: #fff;
+    position: relative;
+}
+
+.decor_banner {
+    position: relative;
+    width: 100%;
+}
+
+.decor_banner img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+}
+
+
+.decor_banner_text {
+    margin: 50px 0;
+    position: absolute;
+    top: 30%;
+    left: 20%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 600px;
+    background-color: white;
+    color: #473c4f;
+    border-radius: 50% / 30%;
+    z-index: 10;
+    padding: 30px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    /* overflow: hidden; */
+
+    border: 30px solid #667b62;
+    animation: floatY 3s ease-in-out infinite;
+}
+
+
+@keyframes floatY {
+
+    0% {
+        transform: translate(-50%, -50%) translateY(0);
+    }
+
+    50% {
+        transform: translate(-50%, -50%) translateY(-10px);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) translateY(0);
+    }
+
+}
+
+.decor_banner_text h2 {
+    font-size: 45px;
+    margin-bottom: 10px;
+}
+
+.headline {
+    color: #a18d6c;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.decor_text {
+    font-size: 14px;
+    margin-bottom: 8px;
+    padding: 10px 0;
+}
+
+.decor_banner_text button {
+    margin-top: 10px;
+    padding: 8px 16px;
+    background-color: #473c4f;
+    color: #a18d6c !important;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all .5s ease-in-out;
+}
+
+.decor_banner_text button a {
+    color: #fff;
+}
+
+.decor_banner_text button:hover {
+    transform: scale(1.1);
+    transition: all .5s ease-in-out;
+}
+
+.decor_slider {
+    padding: 80px 0;
+}
+
+.decor_slider .swiper-pagination-bullet {
+    border: 2px solid #473C4F;
+    width: 12px;
+    height: 12px;
+}
+
+.decor_slider .swiper-pagination-bullet-active {
+    background-color: #fff0db;
+    border: 2px solid #473C4F;
+}
+
+
+
+
+
+
+
+
+
+
+@media screen and (max-width:992px) {
+
+
+    .aboutus_section .feature_content h2 {
+        font-size: 45px;
+        margin-bottom: 30px;
+    }
+
+
+
+    .about_wrapper .feature_content {
+        margin-top: 30px;
+    }
+
+    .decor_banner_text {
+
+        width: 400px;
+        height: 490px;
+    }
+
+    .decor_banner_text h2 {
+        font-size: 35px;
+    }
+
+    .decor_text {
+        font-size: 12px;
+        margin-bottom: 5px;
+        padding: 5px 0;
+    }
+
+
+
+
+
+}
+
+@media screen and (max-width:850px) {
+
+    .aboutus_section .about_wrapper .col-half {
+        flex: 0 0 100%;
+        width: 0 0 100%;
+    }
+
+    .decor_banner_text h2 {
+        font-size: 28px;
+        margin: 0;
+    }
+
+    .decor_banner_text {
+      margin-top: 60px;
+        width: 350px;
+        height: 470px;
+    }
+
+
+}
+
+@media screen and (max-width:768px) {
+    .aboutus_section .feature_content p {
+        font-size: 15px !important;
+        margin-bottom: 15px;
+    }
+
+
+    .decor_banner_text {
+        padding: 20px;
+         margin-top: 170px;
+        width: 300px;
+        height: 400px;
+    }
+
+    .decor_text {
+        font-size: 10px;
+        /* margin-bottom: 5px; */
+        padding: 5px 0;
+    }
+
+    .headline {
+
+        font-size: 12px;
+        margin-bottom: 5px;
+    }
+
+
+  
+
+}
+
+ @media (max-width: 600px) {
+    
+} 
