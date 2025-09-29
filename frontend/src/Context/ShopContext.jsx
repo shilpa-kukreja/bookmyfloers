@@ -18,7 +18,7 @@ const ShopContextProvider = (props) => {
   const [showWishlist, setShowWishlist] = useState(false)
   const [selectedPrices, setSelectedPrices] = useState([]);
   const [coupons, setCoupons] = useState([]);
-  const backend_url = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+  const backend_url = import.meta.env.VITE_BACKEND_URL || 'https://bookmyflowers.shop';
   const [loadingCoupons, setLoadingCoupons] = useState(false);
   const [category, setCategory] = useState([]);
   const [subcategory, setSubcategory] = useState([]);
