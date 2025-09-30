@@ -59,11 +59,7 @@ const Header = () => {
           aria-expanded={dropdownOpen}
           aria-label="User menu"
         >
-          {/* <img
-            src="User.png" // Replace with user image if available
-            alt="User avatar"
-            className="w-9 h-9 rounded-full object-cover"
-          /> */}
+       
           <UserCircleIcon className="w-9 h-9 mr-1 inline-block" />
           <span className="hidden sm:inline">User</span>
           <ChevronDownIcon className={`w-4 h-4 mr-1 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : "rotate-0"}`} />
