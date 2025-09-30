@@ -33,7 +33,7 @@ function App() {
 
 
   return (
-    <Router>
+    <Router basename="/admin">
       <div className="app-container">
         <ToastContainer 
           position="top-right"
