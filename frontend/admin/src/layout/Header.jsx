@@ -46,7 +46,7 @@ const Header = () => {
     <header className=" p-1 px-4 flex items-center justify-between shadow-lg">
       {/* Logo/Title */}
       <div className="text-3xl font-extrabold tracking-wide  select-none">
-        <img src="src/assets/Logo.png" className="h-[60px]" alt="" />
+        <img src="Logo.png" className="h-[60px]" alt="" />
       </div>
 
       {/* Profile Section */}
@@ -60,7 +60,7 @@ const Header = () => {
           aria-label="User menu"
         >
           <img
-            src="../src/assets/user.png" // Replace with user image if available
+            src="user.png" // Replace with user image if available
             alt="User avatar"
             className="w-9 h-9 rounded-full object-cover"
           />
