@@ -11,7 +11,7 @@ const sendEmail = async (mailoption) => {
             }
         });
         const mailOptions = {
-            from: '"Book My Flowers' + process.env.ADMIN_EMAIL,
+            from: `"Book My Flowers" <${process.env.ADMIN_EMAIL}>`,
             to: mailoption.to,
             subject: mailoption.subject,
             html: mailoption.text,
