@@ -60,7 +60,7 @@ const Header = () => {
           aria-label="User menu"
         >
           <img
-            src="user.png" // Replace with user image if available
+            src="User.png" // Replace with user image if available
             alt="User avatar"
             className="w-9 h-9 rounded-full object-cover"
           />
