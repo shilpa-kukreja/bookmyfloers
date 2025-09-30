@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer'
 const sendEmail = async (mailoption) => {
     const transporter = nodemailer.createTransport({
         host: "mail.bookmyflowers.shop",
-        port: 465,
+        port: 587,
         secure: true,
         auth : {
             user : process.env.ADMIN_EMAIL,

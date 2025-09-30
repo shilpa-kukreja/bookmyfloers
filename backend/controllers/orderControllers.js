@@ -64,7 +64,7 @@ export const createOrder = async (req, res) => {
         // Send both emails
         await Promise.all([
             sendEmail(customerEmail),
-            // sendEmail(adminEmail)
+            sendEmail(adminEmail)
         ]);
 
         res.status(201).json({
