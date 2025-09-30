@@ -136,7 +136,7 @@ const ProductDetail = () => {
 
     const images = [fetchProduct.image, ...(fetchProduct.galleryImage || [])];
 
-    console.log("fetch Product", fetchProduct);
+    // console.log("fetch Product", fetchProduct);
 
     return (
         <>

@@ -156,7 +156,7 @@ const QuickView = () => {
 
     if (!quickViewOpen) return null;
 
-    console.log("QuickViewProduct:", quickViewProduct);
+    // console.log("QuickViewProduct:", quickViewProduct);
 
 
     return (
@@ -275,11 +275,13 @@ const QuickView = () => {
                             <div className="quick_view_product_details">
 
                                 <h2>{quickViewProduct.name}</h2>
-
+                                              <hr />
                                  <div 
                                     className='para'
                                     dangerouslySetInnerHTML={{ __html: quickViewProduct.description }} 
                                     />
+
+                                    <hr />
                                                         
                                 {
                                     quickViewProduct.productType === 'simple' && (

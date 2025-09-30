@@ -21,7 +21,7 @@ const AdminOrderDetails = () => {
         const response = await axios.get(`${backend_url}/api/order/get/${id}`);
         setOrder(response.data.data);
       } catch (error) {
-        console.error('Error fetching order:', error);
+        // console.error('Error fetching order:', error);
         toast.error('Failed to load order details');
         navigate('/orders');
       } finally {
