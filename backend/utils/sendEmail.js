@@ -9,7 +9,7 @@ const sendEmail = async (mailoption) => {
             user : process.env.ADMIN_EMAIL,
             pass : process.env.ADMIN_PASSWORD
             }
-            });
+        });
         const mailOptions = {
             from: '"Book My Flowers' + process.env.ADMIN_EMAIL,
             to: mailoption.to,
