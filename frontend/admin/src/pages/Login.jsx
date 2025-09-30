@@ -46,7 +46,7 @@ const Login = () => {
         <div className="login-card">
           <div className="login-header">
             <div className="logo flex justify-center">
-              <img src="../src/assets/Logo.png" alt="BookMyFlowers Logo" />
+              <img src="Logo.png" alt="BookMyFlowers Logo" />
             </div>
             <h1>Welcome Back</h1>
             <p>Please enter your credentials to access the admin panel</p>
