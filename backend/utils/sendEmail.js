@@ -36,7 +36,7 @@ import nodemailer from "nodemailer";
 const sendEmail = async (mailoption) => {
   try {
     const transporter = nodemailer.createTransport({
-      host: "mail.bookmyflowers.shop",
+      host: "smtp.hostinger.com",
       port: 465,
       secure: true, // true for 465, false for 587
       auth: {
