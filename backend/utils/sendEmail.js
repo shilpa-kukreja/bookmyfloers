@@ -49,8 +49,8 @@ const sendEmail = async (mailoption) => {
       from: `"Book My Flowers" <${process.env.ADMIN_EMAIL}>`,
       to: mailoption.to,
       subject: mailoption.subject,
-      html: mailoption.html || "",   // HTML body
-      text: mailoption.text || ""    // Fallback text
+      html: mailoption.text || "",   // HTML body
+      text: ""    // Fallback text
     };
 
     // Verify SMTP connection (optional but helps debug)
