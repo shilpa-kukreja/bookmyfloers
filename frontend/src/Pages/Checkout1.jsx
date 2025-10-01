@@ -13,7 +13,6 @@ const Checkout = () => {
     const [showCoupon, setShowCoupon] = useState(false)
     const [selectedPayment, setSelectedPayment] = useState('cod')
     const [appliedCoupon, setAppliedCoupon] = useState(null)
-    const [isLoading, setIsLoading] = useState(false)
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -27,6 +26,8 @@ const Checkout = () => {
     })
 
     const { cart, removeCart, coupons, user, backend_url } = useContext(ShopContext)
+
+   
 
     const formatCouponDescription = (coupon) => {
         if (coupon.discounttype === 'percentage') {
@@ -84,8 +85,6 @@ const Checkout = () => {
             }
         }
 
-        setIsLoading(true);
-
         const orderData = {
             order_id: `ORD-${Date.now()}`,
             order_date: new Date(),
@@ -104,7 +103,7 @@ const Checkout = () => {
             })),
             customerDetails: {
                 ...formData,
-                userId: user ? user._id : null
+                userId: user ? user._id : null  // Include user ID if logged in, otherwise null
             },
             payment_method: selectedPayment,
             payment_status: selectedPayment === 'cod' ? 'pending' : 'pending'
@@ -122,49 +121,30 @@ const Checkout = () => {
             const data = await response.json();
             
             if (response.ok) {
-                // Simulate a small delay for better UX
-                setTimeout(() => {
-                    localStorage.removeItem('cartData');
-                    navigate('/order-confirmation', { 
-                        state: { 
-                            orderData: orderData,
-                            orderId: data.order_id 
-                        } 
-                    });
-                    setIsLoading(false);
-                }, 1000);
+                // Handle successful order
+                localStorage.removeItem('cartData');
+                navigate('/order-confirmation', { 
+                    state: { 
+                        orderData: orderData,
+                        orderId: data.order_id 
+                    } 
+                });
             } else {
                 throw new Error(data.message || 'Failed to place order');
             }
         } catch (error) {
             console.error('Error placing order:', error);
             alert('Failed to place order. Please try again.');
-            setIsLoading(false);
         }
     };
 
-    // Beautiful Loader Component
-    const Loader = () => (
-        <div className="loader-overlay">
-            <div className="loader-container">
-                <div className="loader-spinner"></div>
-                <div className="loader-content">
-                    <h3>Processing Your Order</h3>
-                    <p>Please wait while we confirm your order details...</p>
-                </div>
-            </div>
-        </div>
-    );
-
     return (
         <div className='checkout_container'>
-            {isLoading && <Loader />}
-            
             <div className="container">
                 <div className="checkout_wrapper">
                     <div className="col-half">
                         <div className="order_summery">
-                            <h3>Order Summary</h3>
+                            <h3>Order Summery</h3>
                             <div className="all_order">
                                 {cart.map((item, id) => (
                                     <div key={id} className='cart_overflow'>
@@ -386,14 +366,23 @@ const Checkout = () => {
                                 />
                                 Cash On Delivery
                             </div>
-
-                            <button 
-                                type='submit' 
-                                form='form' 
-                                className='place_order_btn'
-                                disabled={isLoading}
+{/* 
+                            <div 
+                                className={`radio_btn ${selectedPayment === 'razorpay' ? 'select' : ''}`} 
+                                onClick={() => setSelectedPayment('razorpay')}
                             >
-                                {isLoading ? 'Processing...' : 'Place Order'}
+                                <input 
+                                    type="radio" 
+                                    value="razorpay" 
+                                    name='chkpayment' 
+                                    readOnly 
+                                    checked={selectedPayment === 'razorpay'} 
+                                />
+                                <img src={rasorpay} width="120px" alt="razorpay" />
+                            </div> */}
+
+                            <button type='submit' form='form' className='place_order_btn'>
+                                Place Order
                             </button>
                         </div>
                     </div>

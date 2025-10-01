@@ -129,7 +129,7 @@ function generateOrderConfirmationEmail(order, customer) {
                 border: 1px solid #f0e6d2;
             }
             .header {
-                background:#decec1;
+                background:#fff;
                 padding: 30px 20px;
                 text-align: center;
             }
@@ -493,7 +493,7 @@ function generateStatusUpdateEmail(order) {
                 padding: 20px;
             }
             .header {
-                background-color: #decec1;
+                background-color: #fff;
                 padding: 20px;
                 text-align: center;
                 border-radius: 8px 8px 0 0;

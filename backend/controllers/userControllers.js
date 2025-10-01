@@ -100,7 +100,7 @@ export const register = async (req, res) => {
         
         /* Header with logo */
         .header {
-            background:#decec1;
+            background:#fff;
             padding: 30px 20px;
             text-align: center;
             position: relative;
@@ -192,7 +192,7 @@ export const register = async (req, res) => {
 <body style="background-color: #fff0dc; margin: 0; padding: 20px 0; font-family: 'Adreston', 'Montserrat', Arial, sans-serif;">
     <div class="email-container" style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); border: 1px solid #f0e6d2;">
         <!-- Header with Logo -->
-        <div class="header" style="background-color: #decec1; padding: 30px 20px; text-align: center; position: relative;">
+        <div class="header" style="background-color: #fff; padding: 30px 20px; text-align: center; position: relative;">
             <img src="https://bookmyflowers.shop/assets/Logo-D2J3S_Qv.png" alt="Book My Flower Logo" class="logo" style="max-width: 180px; height: auto; margin-bottom: 15px;">
             <h1 style="color: white; margin: 10px 0 0; font-size: 28px; font-weight: 600; letter-spacing: 0.5px; font-family: 'Adreston', 'Montserrat', Arial, sans-serif;">Welcome to Book My Flower!</h1>
         </div>
@@ -506,7 +506,7 @@ export const resetPassword = async (req, res) => {
             border: 1px solid #f0e6d2;
         }
         .header {
-            background:#decec1;
+            background:#fff;
             padding: 30px 20px;
             text-align: center;
         }
