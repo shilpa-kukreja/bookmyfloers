@@ -193,7 +193,7 @@ export const register = async (req, res) => {
     <div class="email-container" style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); border: 1px solid #f0e6d2;">
         <!-- Header with Logo -->
         <div class="header" style="background-color: #decec1; padding: 30px 20px; text-align: center; position: relative;">
-            <img src="http://localhost:5174/src/assets/Image/bookmyshow/logo/Logo.png" alt="Book My Flower Logo" class="logo" style="max-width: 180px; height: auto; margin-bottom: 15px;">
+            <img src="https://bookmyflowers.shop/assets/Logo-D2J3S_Qv.png" alt="Book My Flower Logo" class="logo" style="max-width: 180px; height: auto; margin-bottom: 15px;">
             <h1 style="color: white; margin: 10px 0 0; font-size: 28px; font-weight: 600; letter-spacing: 0.5px; font-family: 'Adreston', 'Montserrat', Arial, sans-serif;">Welcome to Book My Flower!</h1>
         </div>
         
@@ -391,7 +391,7 @@ const generatePasswordResetEmail = (userName, resetLink) => {
     <body>
         <div class="email-container">
             <div class="header">
-                <img src="https://yourwebsite.com/path-to-logo.png" alt="Your App Logo" class="logo">
+                <img src="https://bookmyflowers.shop/assets/Logo-D2J3S_Qv.png" alt="Your App Logo" class="logo">
             </div>
             
             <div class="content">
@@ -527,7 +527,7 @@ export const resetPassword = async (req, res) => {
 <body style="background-color: #fff0dc; margin: 0; padding: 20px 0;">
     <div class="email-container">
         <div class="header">
-            <img src="http://localhost:5174/src/assets/Image/bookmyshow/logo/Logo.png" alt="Book My Flower Logo" style="max-width: 180px;">
+            <img src="https://bookmyflowers.shop/assets/Logo-D2J3S_Qv.png" alt="Book My Flower Logo" style="max-width: 180px;">
             <h1 style="color: white; margin: 10px 0 0; font-size: 28px;">Password Updated</h1>
         </div>
         

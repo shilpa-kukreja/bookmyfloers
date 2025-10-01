@@ -173,7 +173,7 @@ function generateOrderConfirmationEmail(order, customer) {
     <body>
         <div class="email-container">
             <div class="header">
-                <img src="http://localhost:5174/src/assets/Image/bookmyshow/logo/Logo.png" alt="Book My Flower Logo" style="max-width: 180px;">
+                <img src="https://bookmyflowers.shop/assets/Logo-D2J3S_Qv.png" alt="Book My Flower Logo" style="max-width: 180px;">
                 <h1 style="color: white; margin: 10px 0 0; font-size: 28px;">Order Confirmed!</h1>
             </div>
             
@@ -540,7 +540,7 @@ function generateStatusUpdateEmail(order) {
     </head>
     <body>
         <div class="header">
-            <img src="http://localhost:5174/src/assets/Image/bookmyshow/logo/Logo.png" alt="Book My Flower Logo" style="max-width: 150px;">
+            <img src="https://bookmyflowers.shop/assets/Logo-D2J3S_Qv.png" alt="Book My Flower Logo" style="max-width: 150px;">
         </div>
         
         <div class="content">

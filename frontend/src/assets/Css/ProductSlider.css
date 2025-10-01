@@ -573,15 +573,15 @@
     position: absolute;
     right: 10px;
     top: 10px;
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     background-color: #000;
     color: #fff;
     font-size: 10px;
     cursor: pointer;
     z-index: 111111;
-    padding:11px 4px;
+    padding:6px 4px;
 }
 .quick_view_overlay .close-btn .icon{ font-size: 16px; }
 
