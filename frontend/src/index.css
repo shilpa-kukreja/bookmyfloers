@@ -433,8 +433,8 @@ input::-webkit-inner-spin-button {
 }
 
 .logo img{
-  width: fit-content;
-  height: 50px;
+  width: auto !important;
+  height: 50px ;
 }
 .header_section {
   position: relative !important;
