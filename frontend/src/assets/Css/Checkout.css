@@ -202,7 +202,7 @@
     background-color: #ccc;
     cursor: not-allowed;
     opacity: 0.7;
-}
+} 
 
 /* Optional: Add fade-in animation for loader */
 .loader-overlay {
