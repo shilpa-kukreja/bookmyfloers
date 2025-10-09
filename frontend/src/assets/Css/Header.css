@@ -686,6 +686,10 @@
   color: #e53e3e;
 }
 
+.logo img {
+  width: 175px;
+}
+
 .logout-btn:hover {
   background-color: #fff5f5;
 }
@@ -746,3 +750,4 @@
             height: auto;
         }
 }
+
