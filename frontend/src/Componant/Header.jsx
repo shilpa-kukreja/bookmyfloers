@@ -200,7 +200,7 @@ const Header = () => {
                     </div>
 
                     <div className="logo">
-                        <Link to="/"><img src={logo} width='175px' alt="Logo" /></Link>
+                        <Link to="/"><img src={logo}  alt="Logo" /></Link>
                     </div>
 
                     <div className="header_right_icons">
