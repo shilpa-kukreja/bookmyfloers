@@ -174,11 +174,8 @@ const Footer = () => {
                      <li>
                         <IoMdCall className='icon' />
                         <div>
-
-                           <a href="tel:+91 9811296262">+91 9811296262</a>
+                           <a href="tel:+91 9266092967">+91 9266092967</a>
                         </div>
-
-
                      </li>
                   </ul>
 
