@@ -105,21 +105,6 @@ const App = () => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         <div className="decor_btn">
           <button> <Link to='/decor'> Last Moment Decor! </Link></button>
         </div>
@@ -127,11 +112,11 @@ const App = () => {
 
         {/*  icon watsapp or call */}
 
-        <a href="tel:9811296262" target="_blank" className="btn-call-pulse">
+        <a href="tel:9266092967" target="_blank" className="btn-call-pulse">
           <IoMdCall className="icon"  />          
         </a>
 
-        <a href="https://wa.me/9811296262" target="_blank" className="btn-whatsapp-pulse">
+        <a href="https://wa.me/9266092967" target="_blank" className="btn-whatsapp-pulse">
           <FaWhatsapp  className='icon' /> 
           
           
