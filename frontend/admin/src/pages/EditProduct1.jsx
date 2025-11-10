@@ -1,15 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
-const AddProduct = () => {
+
+
+const EditProduct = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [mainImagePreview, setMainImagePreview] = useState(null);
@@ -18,6 +22,16 @@ const AddProduct = () => {
   const [fileErrors, setFileErrors] = useState({
     image: '',
     galleryImage: ''
+  });
+
+  const [deletedImages, setDeletedImages] = useState({
+    mainImage: false,
+    galleryImages: []
+  });
+
+  const [existingImages, setExistingImages] = useState({
+    mainImage: '',
+    galleryImages: []
   });
   const backend_url = import.meta.env.VITE_BACKEND_URL;
 
@@ -29,6 +43,7 @@ const AddProduct = () => {
     watch,
     setValue,
     control,
+    reset,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -56,6 +71,88 @@ const AddProduct = () => {
     name: "variant"
   });
 
+  // Fetch product data on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setFetching(true);
+        const [productRes, categoriesRes, subCategoriesRes] = await Promise.all([
+          axios.get(`${backend_url}/api/product/get/${id}`),
+          axios.post(`${backend_url}/api/category/all`),
+          axios.post(`${backend_url}/api/subcategory/all`)
+        ]);
+
+        const product = productRes.data.product;
+
+        console.log(productRes.data.product);
+
+        // Set existing images
+        if (product.image) {
+          setMainImagePreview(backend_url + product.image);
+          setExistingImages(prev => ({ ...prev, mainImage: product.image }));
+        }
+
+        if (product.galleryImage && product.galleryImage.length > 0) {
+          setGalleryPreviews(product.galleryImage);
+          setExistingImages(prev => ({ ...prev, galleryImages: product.galleryImage }));
+        }
+
+        // Set product type
+        setProductType(product.productType);
+
+        // Prepare form data
+        const formData = {
+          name: product.name,
+          slug: product.slug,
+          section: product.section,
+          image: product.image,
+          galleryImage: product.galleryImage || [],
+          shortDescription: product.shortDescription,
+          description: product.description,
+          additionalInformation: product.additionalInformation || '',
+          productType: product.productType,
+          categoryId: product.categoryId || [], // Keep the full objects
+          subcategoryId: product.subcategoryId || [], // Keep the full objects
+          sku: product.sku,
+          dimensions: product.dimensions[0] || { length: '', width: '', height: '' },
+          weight: product.weight || '',
+          availability: product.availability !== false,
+          status: product.status !== false,
+          metaTitle: product.metaTitle || '',
+          metaDescription: product.metaDescription || '',
+          variant: product.variant && product.variant.length > 0
+            ? product.variant
+            : [{ variantName: '', actualPrice: '', discountPrice: '', stock: '' }]
+        };
+
+
+
+        // console.log(product.dimensions);
+        // console.log(product.weight);
+   
+      
+        // Set pricing fields based on product type
+        if (product.productType === 'simple') {
+          formData.actualPrice = product.mrp;
+          formData.discountPrice = product.discountedPrice;
+          formData.stock = product.stock;
+        }
+
+        reset(formData);
+        setCategories(categoriesRes.data.data);
+        setSubCategories(subCategoriesRes.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        toast.error('Failed to load product data');
+        // navigate('/product');
+      } finally {
+        setFetching(false);
+      }
+    };
+
+    fetchData();
+  }, [id, backend_url, reset, navigate]);
+
   // Watch product name to generate slug
   const productName = watch('name');
   useEffect(() => {
@@ -68,28 +165,6 @@ const AddProduct = () => {
     }
   }, [productName, setValue]);
 
-  
-  // Fetch categories and subcategories on component mount
-  useEffect(() => {
-    
-    const fetchData = async () => {
-      try {
-        const [categoriesRes, subCategoriesRes] = await Promise.all([
-          axios.post(`${backend_url}/api/category/all`),
-          axios.post(`${backend_url}/api/subcategory/all`)
-        ]);
-        setCategories(categoriesRes.data.data);
-        setSubCategories(subCategoriesRes.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        toast.error('Failed to load categories or subcategories' );
-      }
-    };
-    fetchData();
-  }, [backend_url]);
-
-
-  
   // Handle category selection change
   const handleCategoryChange = (e) => {
     const options = Array.from(e.target.selectedOptions).map(option => option.value);
@@ -107,12 +182,12 @@ const AddProduct = () => {
     const newErrors = { image: '', galleryImage: '' };
     let isValid = true;
 
-    if (!mainImagePreview) {
+    if (!mainImagePreview && !existingImages.mainImage) {
       newErrors.image = 'Main image is required';
       isValid = false;
     }
 
-    if (galleryPreviews.length === 0) {
+    if (galleryPreviews.length === 0 && existingImages.galleryImages.length === 0) {
       newErrors.galleryImage = 'At least one gallery image is required';
       isValid = false;
     }
@@ -136,7 +211,7 @@ const AddProduct = () => {
       };
       reader.readAsDataURL(file);
     } else {
-      setFileErrors(prev => ({ ...prev, image: 'Main image is required' }));
+      setFileErrors(prev => ({ ...prev, image: !existingImages.mainImage ? 'Main image is required' : '' }));
     }
   };
 
@@ -189,14 +264,32 @@ const AddProduct = () => {
 
   // Remove gallery image and update validation
   const removeGalleryImage = (index) => {
-    // console.log(index);
-    setGalleryPreviews(prev => prev.filter((_, i) => i !== index));
+
+   
+    if (index < existingImages.galleryImages.length) {
+      
+      // Existing image - mark for deletion
+      const updatedDeleted = [...deletedImages.galleryImages];
+      updatedDeleted[index] = true; // Mark this index as deleted
+      setDeletedImages(prev => ({ ...prev, galleryImages: updatedDeleted }));
+      
+      console.log(updatedDeleted);
+      console.log(existingImages);
+      // Also remove from display
+      const updatedExisting = [...existingImages.galleryImages];
+      updatedExisting.splice(index, 1);
+      setExistingImages(prev => ({ ...prev, galleryImages: updatedExisting }));
+    } else {
+      // New preview - just remove from previews
+      const adjustedIndex = index - existingImages.galleryImages.length;
+      setGalleryPreviews(prev => prev.filter((_, i) => i !== adjustedIndex));
+    }
 
     if (galleryInputRef.current) {
       galleryInputRef.current.value = '';
     }
 
-    if (galleryPreviews.length > 1) {
+    if (galleryPreviews.length + existingImages.galleryImages.length > 1) {
       setFileErrors(prev => ({ ...prev, galleryImage: '' }));
     }
   };
@@ -213,11 +306,11 @@ const AddProduct = () => {
       setLoading(true);
       const formData = new FormData();
 
-
       // Append all fields
       Object.entries(data).forEach(([key, value]) => {
         if (key === 'categoryId' || key === 'subcategoryId') {
-          value.forEach(id => formData.append(`${key}[]`, id));
+          value.forEach(cate => formData.append(`${key}[]`, cate._id));
+         
         } else if (key === 'dimensions') {
           formData.append('dimensions[length]', value.length);
           formData.append('dimensions[width]', value.width);
@@ -228,25 +321,28 @@ const AddProduct = () => {
       });
 
       if (data.productType === 'variable') {
-      // Format variants properly before stringifying
-      const provariants = data.variant.map(v => ({
-        variantName: v.variantName,
-        actualPrice: parseFloat(v.actualPrice),
-        discountPrice: parseFloat(v.discountPrice || v.actualPrice),
-        stock: parseInt(v.stock)
-      }));
-      
-      // Stringify the array of variant objects
-      formData.append('provariants', JSON.stringify(provariants));
-    }
+        // Format variants properly before stringifying
+        const provariants = data.variant.map(v => ({
+          variantName: v.variantName,
+          actualPrice: parseFloat(v.actualPrice),
+          discountPrice: parseFloat(v.discountPrice || v.actualPrice),
+          stock: parseInt(v.stock)
+        }));
 
-      // Append main image
+       
+
+        // Stringify the array of variant objects
+        formData.append('provariants', JSON.stringify(provariants));
+      }
+
+      // Append main image if a new one was uploaded
       const mainImageInput = document.querySelector('input[name="image"]');
       if (mainImageInput?.files[0]) {
         formData.append('image', mainImageInput.files[0]);
+      } else if (existingImages.mainImage) {
+        // Keep existing image if no new one was uploaded
+        formData.append('existingImage', existingImages.mainImage);
       }
-
- 
 
       // Append gallery images
       const galleryInput = document.querySelector('input[name="galleryImage"]');
@@ -256,30 +352,53 @@ const AddProduct = () => {
         });
       }
 
-      const response = await axios.post(`${backend_url}/api/product/add`, formData, {
+      // Append existing gallery images that weren't deleted
+      existingImages.galleryImages.forEach(img => {
+        formData.append('existingGalleryImages[]', img);
+      });
+
+      if (deletedImages.mainImage) {
+        formData.append('deletedMainImage', 'true');
+      }
+
+      deletedImages.galleryImages.forEach((deleted, index) => {
+        if (deleted) {
+          formData.append('deletedGalleryImages[]', existingImages.galleryImages[index]);
+        }
+      });
+      
+      const response = await axios.put(`${backend_url}/api/product/update/${id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
       toast.success(response.data.message);
-      navigate('/product');
+      // navigate('/products');
     } catch (error) {
       console.error('Error:', error);
-      toast.error(error.response?.data?.message || 'Failed to add product');
+      toast.error(error.response?.data?.message || 'Failed to update product');
     } finally {
       setLoading(false);
     }
   };
 
+  if (fetching) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto px-4 py-8 ">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-gray-200 pb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Add New Product</h1>
-          <p className="text-gray-600 mt-2">Fill in the details to create a new product</p>
+          <h1 className="text-3xl font-bold text-gray-900">Edit Product</h1>
+          <p className="text-gray-600 mt-2">Update the details of this product</p>
         </div>
         <button
-          onClick={() => navigate('/products')}
+          onClick={() => navigate('/product')}
           className="flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors mt-4 md:mt-0"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -298,7 +417,7 @@ const AddProduct = () => {
               <input
                 type="radio"
                 value="simple"
-                {...register('productType')} // This handles the value
+                {...register('productType')}
                 checked={productType === 'simple'}
                 onChange={() => setProductType('simple')}
                 className="h-5 w-5 text-blue-600 focus:ring-blue-500"
@@ -312,7 +431,7 @@ const AddProduct = () => {
               <input
                 type="radio"
                 value="variable"
-                 {...register('productType')} // This handles the value
+                {...register('productType')}
                 checked={productType === 'variable'}
                 onChange={() => setProductType('variable')}
                 className="h-5 w-5 text-blue-600 focus:ring-blue-500"
@@ -387,38 +506,83 @@ const AddProduct = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Categories*</label>
-              <select
-                {...register('categoryId', {
+              <Controller
+                name="categoryId"
+                control={control}
+                rules={{
                   required: 'At least one category is required',
                   validate: value => value.length > 0 || 'At least one category is required'
-                })}
-                onChange={handleCategoryChange}
-                multiple
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-auto min-h-[42px]"
-              >
-                {categories.map((category) => (
-                  <option key={category._id} value={category._id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
+                }}
+                render={({ field }) => {
+                  // Get current selected category IDs
+                  const selectedIds = field.value?.map(cat => typeof cat === 'object' ? cat._id : cat) || [];
+
+                  return (
+                    <select
+                      multiple
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-auto min-h-[42px]"
+                      value={selectedIds}
+                      onChange={(e) => {
+                        const selectedOptions = Array.from(e.target.selectedOptions);
+                        const selectedIds = selectedOptions.map(option => option.value);
+                        // Find the full category objects for the selected IDs
+                        const selectedCategories = categories.filter(cat =>
+                          selectedIds.includes(cat._id)
+                        );
+                        field.onChange(selectedCategories);
+                      }}
+                    >
+                      {categories.map((category) => (
+                        <option
+                          key={category._id}
+                          value={category._id}
+                        >
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                  );
+                }}
+              />
               {errors.categoryId && <p className="mt-1 text-sm text-red-600">{errors.categoryId.message}</p>}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Subcategories</label>
-              <select
-                {...register('subcategoryId')}
-                onChange={handleSubcategoryChange}
-                multiple
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-auto min-h-[42px]"
-              >
-                {subCategories.map((subCategory) => (
-                  <option key={subCategory._id} value={subCategory._id}>
-                    {subCategory.name}
-                  </option>
-                ))}
-              </select>
+              <Controller
+                name="subcategoryId"
+                control={control}
+                render={({ field }) => {
+                  // Get current selected subcategory IDs
+                  const selectedIds = field.value?.map(sub => typeof sub === 'object' ? sub._id : sub) || [];
+
+                  return (
+                    <select
+                      multiple
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-auto min-h-[42px]"
+                      value={selectedIds}
+                      onChange={(e) => {
+                        const selectedOptions = Array.from(e.target.selectedOptions);
+                        const selectedIds = selectedOptions.map(option => option.value);
+                        // Find the full subcategory objects for the selected IDs
+                        const selectedSubcategories = subCategories.filter(sub =>
+                          selectedIds.includes(sub._id)
+                        );
+                        field.onChange(selectedSubcategories);
+                      }}
+                    >
+                      {subCategories.map((subCategory) => (
+                        <option
+                          key={subCategory._id}
+                          value={subCategory._id}
+                        >
+                          {subCategory.name}
+                        </option>
+                      ))}
+                    </select>
+                  );
+                }}
+              />
             </div>
           </div>
         </div>
@@ -440,6 +604,8 @@ const AddProduct = () => {
                 <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
                   {mainImagePreview ? (
                     <img src={mainImagePreview} alt="Preview" className="w-full h-full object-contain rounded-lg" />
+                  ) : existingImages.mainImage ? (
+                    <img src={existingImages.mainImage} alt="Existing" className="w-full h-full object-contain rounded-lg" />
                   ) : (
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                       <svg className="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
@@ -463,61 +629,88 @@ const AddProduct = () => {
 
             {/* Gallery Images */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Gallery Images (Max 10)*
-                {fileErrors.galleryImage && (
-                  <span className="text-red-500 text-xs ml-2">{fileErrors.galleryImage}</span>
-                )}
-              </label>
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-center w-full">
-                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <svg className="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
-                      </svg>
-                      <p className="mb-2 text-sm text-gray-500">
-                        <span className="font-semibold">Click to upload</span> or drag and drop
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {galleryPreviews.length}/10 images (MAX. 2MB each)
-                      </p>
-                    </div>
-                    <input
-                      id="gallery-images"
-                      type="file"
-                      name="galleryImage"
-                      onChange={handleGalleryImagesChange}
-                      className="hidden"
-                      accept="image/*"
-                      multiple
-                      ref={galleryInputRef}
-                    />
-                  </label>
-                </div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Gallery Images (Max 10)*
+    {fileErrors.galleryImage && (
+      <span className="text-red-500 text-xs ml-2">{fileErrors.galleryImage}</span>
+    )}
+  </label>
+  <div className="flex flex-col gap-4">
+    <div className="flex items-center justify-center w-full">
+      <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+          <svg className="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+          </svg>
+          <p className="mb-2 text-sm text-gray-500">
+            <span className="font-semibold">Click to upload</span> or drag and drop
+          </p>
+          <p className="text-xs text-gray-500">
+            {(galleryPreviews.length + existingImages.galleryImages.length)}/10 images (MAX. 2MB each)
+          </p>
+        </div>
+        <input
+          id="gallery-images"
+          type="file"
+          name="galleryImage"
+          onChange={handleGalleryImagesChange}
+          className="hidden"
+          accept="image/*"
+          multiple
+          ref={galleryInputRef}
+        />
+      </label>
+    </div>
 
-                {galleryPreviews.length > 0 && (
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                    {galleryPreviews.map((preview, index) => (
-                      <div key={index} className="relative group h-24">
-                        <img
-                          src={preview}
-                          alt={`Gallery ${index}`}
-                          className="w-full h-full object-cover rounded border border-gray-200"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeGalleryImage(index)}
-                          className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center transform translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+    {(galleryPreviews.length > 0 || existingImages.galleryImages.length > 0) && (
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 gap-2">
+        {/* Existing Images */}
+        {existingImages.galleryImages.map((preview, index) => (
+          <div key={`existing-${preview}-${index}`} className="relative group h-24">
+            <img
+              src={backend_url + preview}
+              alt={`Gallery ${index}`}
+              className="w-full h-full object-cover rounded border border-gray-200"
+            />
+            <button
+              type="button"
+              onClick={() => removeGalleryImage(index)}
+              className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center transform translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+        
+        {/* New Preview Images */}
+        {galleryPreviews.map((preview, index) => {
+          // Check if this preview is already in existingImages
+          const isDuplicate = existingImages.galleryImages.some(
+            existing => preview.includes(existing.split('/').pop())) // Simple check for filename
+          
+          if (isDuplicate) return null; // Skip rendering duplicates
+          
+          return (
+            <div key={`new-${preview}-${index}`} className="relative group h-24">
+              <img
+                src={preview}
+                alt={`Gallery ${index + existingImages.galleryImages.length}`}
+                className="w-full h-full object-cover rounded border border-gray-200"
+              />
+              <button
+                type="button"
+                onClick={() => removeGalleryImage(index + existingImages.galleryImages.length)}
+                className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center transform translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                ×
+              </button>
             </div>
+          );
+        })}
+      </div>
+    )}
+  </div>
+</div>
           </div>
         </div>
 
@@ -531,7 +724,7 @@ const AddProduct = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Actual Price*</label>
                 <div className="relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="text-gray-500 sm:text-sm">$</span>
+                    <span className="text-gray-500 sm:text-sm">₹</span>
                   </div>
                   <input
                     type="number"
@@ -551,7 +744,7 @@ const AddProduct = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Discount Price</label>
                 <div className="relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="text-gray-500 sm:text-sm">$</span>
+                    <span className="text-gray-500 sm:text-sm">₹</span>
                   </div>
                   <input
                     type="number"
@@ -826,7 +1019,7 @@ const AddProduct = () => {
         {/* SEO Meta Information */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <h2 className="text-xl font-semibold text-gray-800 mb-6">SEO Meta Information</h2>
-          
+
           <div className="grid grid-cols-1 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Meta Title</label>
@@ -839,7 +1032,7 @@ const AddProduct = () => {
               />
               <p className="mt-1 text-xs text-gray-500">Recommended length: 50-60 characters</p>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Meta Description</label>
               <textarea
@@ -857,7 +1050,7 @@ const AddProduct = () => {
         {/* Status & Availability */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <h2 className="text-xl font-semibold text-gray-800 mb-6">Status & Availability</h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex items-center">
               <input
@@ -865,20 +1058,18 @@ const AddProduct = () => {
                 id="status"
                 {...register('status')}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                defaultChecked
               />
               <label htmlFor="status" className="ml-2 block text-sm text-gray-900">
                 Active
               </label>
             </div>
-            
+
             <div className="flex items-center">
               <input
                 type="checkbox"
                 id="availability"
                 {...register('availability')}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                defaultChecked
               />
               <label htmlFor="availability" className="ml-2 block text-sm text-gray-900">
                 Available for purchase
@@ -891,7 +1082,7 @@ const AddProduct = () => {
         <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
           <button
             type="button"
-            onClick={() => navigate('/product')}
+            onClick={() => navigate('/products')}
             className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
           >
             Cancel
@@ -924,10 +1115,10 @@ const AddProduct = () => {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-                Saving...
+                Updating...
               </>
             ) : (
-              'Save Product'
+              'Update Product'
             )}
           </button>
         </div>
@@ -936,4 +1127,4 @@ const AddProduct = () => {
   );
 };
 
-export default AddProduct;
+export default EditProduct;

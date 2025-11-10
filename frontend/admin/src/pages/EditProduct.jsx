@@ -7,8 +7,6 @@ import axios from 'axios';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
-
-
 const EditProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -24,17 +22,14 @@ const EditProduct = () => {
     galleryImage: ''
   });
 
-  const [deletedImages, setDeletedImages] = useState({
-    mainImage: false,
-    galleryImages: []
-  });
-
+  // Simplified state management for images
   const [existingImages, setExistingImages] = useState({
     mainImage: '',
     galleryImages: []
   });
-  const backend_url = import.meta.env.VITE_BACKEND_URL;
+  const [deletedGalleryImages, setDeletedGalleryImages] = useState([]); // Store deleted image URLs
 
+  const backend_url = import.meta.env.VITE_BACKEND_URL;
   const galleryInputRef = useRef(null);
 
   const {
@@ -84,8 +79,6 @@ const EditProduct = () => {
 
         const product = productRes.data.product;
 
-        console.log(productRes.data.product);
-
         // Set existing images
         if (product.image) {
           setMainImagePreview(backend_url + product.image);
@@ -93,8 +86,10 @@ const EditProduct = () => {
         }
 
         if (product.galleryImage && product.galleryImage.length > 0) {
-          setGalleryPreviews(product.galleryImage);
-          setExistingImages(prev => ({ ...prev, galleryImages: product.galleryImage }));
+          setExistingImages(prev => ({ 
+            ...prev, 
+            galleryImages: product.galleryImage 
+          }));
         }
 
         // Set product type
@@ -111,8 +106,8 @@ const EditProduct = () => {
           description: product.description,
           additionalInformation: product.additionalInformation || '',
           productType: product.productType,
-          categoryId: product.categoryId || [], // Keep the full objects
-          subcategoryId: product.subcategoryId || [], // Keep the full objects
+          categoryId: product.categoryId || [],
+          subcategoryId: product.subcategoryId || [],
           sku: product.sku,
           dimensions: product.dimensions[0] || { length: '', width: '', height: '' },
           weight: product.weight || '',
@@ -125,12 +120,6 @@ const EditProduct = () => {
             : [{ variantName: '', actualPrice: '', discountPrice: '', stock: '' }]
         };
 
-
-
-        console.log(product.dimensions);
-        console.log(product.weight);
-   
-      
         // Set pricing fields based on product type
         if (product.productType === 'simple') {
           formData.actualPrice = product.mrp;
@@ -144,14 +133,13 @@ const EditProduct = () => {
       } catch (error) {
         console.error('Error fetching data:', error);
         toast.error('Failed to load product data');
-        // navigate('/product');
       } finally {
         setFetching(false);
       }
     };
 
     fetchData();
-  }, [id, backend_url, reset, navigate]);
+  }, [id, backend_url, reset]);
 
   // Watch product name to generate slug
   const productName = watch('name');
@@ -165,18 +153,6 @@ const EditProduct = () => {
     }
   }, [productName, setValue]);
 
-  // Handle category selection change
-  const handleCategoryChange = (e) => {
-    const options = Array.from(e.target.selectedOptions).map(option => option.value);
-    setValue('categoryId', options);
-  };
-
-  // Handle subcategory selection change
-  const handleSubcategoryChange = (e) => {
-    const options = Array.from(e.target.selectedOptions).map(option => option.value);
-    setValue('subcategoryId', options);
-  };
-
   // Validate files before submission
   const validateFiles = () => {
     const newErrors = { image: '', galleryImage: '' };
@@ -187,7 +163,9 @@ const EditProduct = () => {
       isValid = false;
     }
 
-    if (galleryPreviews.length === 0 && existingImages.galleryImages.length === 0) {
+    const totalGalleryImages = galleryPreviews.length + getRemainingExistingImages().length;
+    
+    if (totalGalleryImages === 0) {
       newErrors.galleryImage = 'At least one gallery image is required';
       isValid = false;
     }
@@ -210,8 +188,6 @@ const EditProduct = () => {
         setFileErrors(prev => ({ ...prev, image: '' }));
       };
       reader.readAsDataURL(file);
-    } else {
-      setFileErrors(prev => ({ ...prev, image: !existingImages.mainImage ? 'Main image is required' : '' }));
     }
   };
 
@@ -221,7 +197,9 @@ const EditProduct = () => {
     let isValid = true;
     const newErrors = [];
 
-    if (files.length + galleryPreviews.length > 10) {
+    const totalImagesAfterUpload = files.length + galleryPreviews.length + getRemainingExistingImages().length;
+    
+    if (totalImagesAfterUpload > 10) {
       setFileErrors(prev => ({ ...prev, galleryImage: 'Maximum 10 images allowed' }));
       isValid = false;
     }
@@ -262,21 +240,24 @@ const EditProduct = () => {
     });
   };
 
-  // Remove gallery image and update validation
+  // Get remaining existing images (not deleted)
+  const getRemainingExistingImages = () => {
+    return existingImages.galleryImages.filter(
+      (image) => !deletedGalleryImages.includes(image)
+    );
+  };
+
+  // Fixed remove gallery image function
   const removeGalleryImage = (index) => {
-    if (index < existingImages.galleryImages.length) {
+    const totalExistingImages = existingImages.galleryImages.length;
+    
+    if (index < totalExistingImages) {
       // Existing image - mark for deletion
-      const updatedDeleted = [...deletedImages.galleryImages];
-      updatedDeleted[index] = true; // Mark this index as deleted
-      setDeletedImages(prev => ({ ...prev, galleryImages: updatedDeleted }));
-      
-      // Also remove from display
-      const updatedExisting = [...existingImages.galleryImages];
-      updatedExisting.splice(index, 1);
-      setExistingImages(prev => ({ ...prev, galleryImages: updatedExisting }));
+      const imageToDelete = existingImages.galleryImages[index];
+      setDeletedGalleryImages(prev => [...prev, imageToDelete]);
     } else {
-      // New preview - just remove from previews
-      const adjustedIndex = index - existingImages.galleryImages.length;
+      // New preview - remove from previews array
+      const adjustedIndex = index - totalExistingImages;
       setGalleryPreviews(prev => prev.filter((_, i) => i !== adjustedIndex));
     }
 
@@ -284,7 +265,9 @@ const EditProduct = () => {
       galleryInputRef.current.value = '';
     }
 
-    if (galleryPreviews.length + existingImages.galleryImages.length > 1) {
+    // Clear error if we still have images
+    const remainingImages = getRemainingExistingImages().length + galleryPreviews.length;
+    if (remainingImages > 0) {
       setFileErrors(prev => ({ ...prev, galleryImage: '' }));
     }
   };
@@ -305,7 +288,6 @@ const EditProduct = () => {
       Object.entries(data).forEach(([key, value]) => {
         if (key === 'categoryId' || key === 'subcategoryId') {
           value.forEach(cate => formData.append(`${key}[]`, cate._id));
-         
         } else if (key === 'dimensions') {
           formData.append('dimensions[length]', value.length);
           formData.append('dimensions[width]', value.width);
@@ -316,17 +298,12 @@ const EditProduct = () => {
       });
 
       if (data.productType === 'variable') {
-        // Format variants properly before stringifying
         const provariants = data.variant.map(v => ({
           variantName: v.variantName,
           actualPrice: parseFloat(v.actualPrice),
           discountPrice: parseFloat(v.discountPrice || v.actualPrice),
           stock: parseInt(v.stock)
         }));
-
-       
-
-        // Stringify the array of variant objects
         formData.append('provariants', JSON.stringify(provariants));
       }
 
@@ -335,7 +312,6 @@ const EditProduct = () => {
       if (mainImageInput?.files[0]) {
         formData.append('image', mainImageInput.files[0]);
       } else if (existingImages.mainImage) {
-        // Keep existing image if no new one was uploaded
         formData.append('existingImage', existingImages.mainImage);
       }
 
@@ -347,19 +323,15 @@ const EditProduct = () => {
         });
       }
 
-      // Append existing gallery images that weren't deleted
-      existingImages.galleryImages.forEach(img => {
+      // Append remaining existing gallery images
+      const remainingImages = getRemainingExistingImages();
+      remainingImages.forEach(img => {
         formData.append('existingGalleryImages[]', img);
       });
 
-      if (deletedImages.mainImage) {
-        formData.append('deletedMainImage', 'true');
-      }
-
-      deletedImages.galleryImages.forEach((deleted, index) => {
-        if (deleted) {
-          formData.append('deletedGalleryImages[]', existingImages.galleryImages[index]);
-        }
+      // Append deleted gallery images
+      deletedGalleryImages.forEach(img => {
+        formData.append('deletedGalleryImages[]', img);
       });
       
       const response = await axios.put(`${backend_url}/api/product/update/${id}`, formData, {
@@ -368,7 +340,7 @@ const EditProduct = () => {
         },
       });
       toast.success(response.data.message);
-      // navigate('/products');
+      navigate('/product');
     } catch (error) {
       console.error('Error:', error);
       toast.error(error.response?.data?.message || 'Failed to update product');
@@ -509,7 +481,6 @@ const EditProduct = () => {
                   validate: value => value.length > 0 || 'At least one category is required'
                 }}
                 render={({ field }) => {
-                  // Get current selected category IDs
                   const selectedIds = field.value?.map(cat => typeof cat === 'object' ? cat._id : cat) || [];
 
                   return (
@@ -520,7 +491,6 @@ const EditProduct = () => {
                       onChange={(e) => {
                         const selectedOptions = Array.from(e.target.selectedOptions);
                         const selectedIds = selectedOptions.map(option => option.value);
-                        // Find the full category objects for the selected IDs
                         const selectedCategories = categories.filter(cat =>
                           selectedIds.includes(cat._id)
                         );
@@ -548,7 +518,6 @@ const EditProduct = () => {
                 name="subcategoryId"
                 control={control}
                 render={({ field }) => {
-                  // Get current selected subcategory IDs
                   const selectedIds = field.value?.map(sub => typeof sub === 'object' ? sub._id : sub) || [];
 
                   return (
@@ -559,7 +528,6 @@ const EditProduct = () => {
                       onChange={(e) => {
                         const selectedOptions = Array.from(e.target.selectedOptions);
                         const selectedIds = selectedOptions.map(option => option.value);
-                        // Find the full subcategory objects for the selected IDs
                         const selectedSubcategories = subCategories.filter(sub =>
                           selectedIds.includes(sub._id)
                         );
@@ -600,7 +568,7 @@ const EditProduct = () => {
                   {mainImagePreview ? (
                     <img src={mainImagePreview} alt="Preview" className="w-full h-full object-contain rounded-lg" />
                   ) : existingImages.mainImage ? (
-                    <img src={existingImages.mainImage} alt="Existing" className="w-full h-full object-contain rounded-lg" />
+                    <img src={backend_url + existingImages.mainImage} alt="Existing" className="w-full h-full object-contain rounded-lg" />
                   ) : (
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                       <svg className="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
@@ -624,88 +592,80 @@ const EditProduct = () => {
 
             {/* Gallery Images */}
             <div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">
-    Gallery Images (Max 10)*
-    {fileErrors.galleryImage && (
-      <span className="text-red-500 text-xs ml-2">{fileErrors.galleryImage}</span>
-    )}
-  </label>
-  <div className="flex flex-col gap-4">
-    <div className="flex items-center justify-center w-full">
-      <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
-        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-          <svg className="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
-          </svg>
-          <p className="mb-2 text-sm text-gray-500">
-            <span className="font-semibold">Click to upload</span> or drag and drop
-          </p>
-          <p className="text-xs text-gray-500">
-            {(galleryPreviews.length + existingImages.galleryImages.length)}/10 images (MAX. 2MB each)
-          </p>
-        </div>
-        <input
-          id="gallery-images"
-          type="file"
-          name="galleryImage"
-          onChange={handleGalleryImagesChange}
-          className="hidden"
-          accept="image/*"
-          multiple
-          ref={galleryInputRef}
-        />
-      </label>
-    </div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Gallery Images (Max 10)*
+                {fileErrors.galleryImage && (
+                  <span className="text-red-500 text-xs ml-2">{fileErrors.galleryImage}</span>
+                )}
+              </label>
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-center w-full">
+                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <svg className="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                      </svg>
+                      <p className="mb-2 text-sm text-gray-500">
+                        <span className="font-semibold">Click to upload</span> or drag and drop
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {(getRemainingExistingImages().length + galleryPreviews.length)}/10 images (MAX. 2MB each)
+                      </p>
+                    </div>
+                    <input
+                      id="gallery-images"
+                      type="file"
+                      name="galleryImage"
+                      onChange={handleGalleryImagesChange}
+                      className="hidden"
+                      accept="image/*"
+                      multiple
+                      ref={galleryInputRef}
+                    />
+                  </label>
+                </div>
 
-    {(galleryPreviews.length > 0 || existingImages.galleryImages.length > 0) && (
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 gap-2">
-        {/* Existing Images */}
-        {existingImages.galleryImages.map((preview, index) => (
-          <div key={`existing-${preview}-${index}`} className="relative group h-24">
-            <img
-              src={backend_url + preview}
-              alt={`Gallery ${index}`}
-              className="w-full h-full object-cover rounded border border-gray-200"
-            />
-            <button
-              type="button"
-              onClick={() => removeGalleryImage(index)}
-              className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center transform translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              ×
-            </button>
-          </div>
-        ))}
-        
-        {/* New Preview Images */}
-        {galleryPreviews.map((preview, index) => {
-          // Check if this preview is already in existingImages
-          const isDuplicate = existingImages.galleryImages.some(
-            existing => preview.includes(existing.split('/').pop())) // Simple check for filename
-          
-          if (isDuplicate) return null; // Skip rendering duplicates
-          
-          return (
-            <div key={`new-${preview}-${index}`} className="relative group h-24">
-              <img
-                src={preview}
-                alt={`Gallery ${index + existingImages.galleryImages.length}`}
-                className="w-full h-full object-cover rounded border border-gray-200"
-              />
-              <button
-                type="button"
-                onClick={() => removeGalleryImage(index + existingImages.galleryImages.length)}
-                className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center transform translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                ×
-              </button>
+                {(galleryPreviews.length > 0 || getRemainingExistingImages().length > 0) && (
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                    {/* Existing Images */}
+                    {getRemainingExistingImages().map((preview, index) => (
+                      <div key={`existing-${preview}-${index}`} className="relative group h-24">
+                        <img
+                          src={backend_url + preview}
+                          alt={`Gallery ${index}`}
+                          className="w-full h-full object-cover rounded border border-gray-200"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeGalleryImage(index)}
+                          className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center transform translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                    
+                    {/* New Preview Images */}
+                    {galleryPreviews.map((preview, index) => (
+                      <div key={`new-${preview}-${index}`} className="relative group h-24">
+                        <img
+                          src={preview}
+                          alt={`Gallery ${index + getRemainingExistingImages().length}`}
+                          className="w-full h-full object-cover rounded border border-gray-200"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeGalleryImage(index + getRemainingExistingImages().length)}
+                          className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center transform translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-          );
-        })}
-      </div>
-    )}
-  </div>
-</div>
           </div>
         </div>
 
@@ -1077,7 +1037,7 @@ const EditProduct = () => {
         <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
           <button
             type="button"
-            onClick={() => navigate('/products')}
+            onClick={() => navigate('/product')}
             className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
           >
             Cancel
