@@ -69,3 +69,9 @@ export const uploadBlogImage = multer({
   limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
   fileFilter: imageFilter
 });
+
+export const uploadBannerImage = multer({
+  storage: createStorage('banner'),
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+  fileFilter: imageFilter
+});

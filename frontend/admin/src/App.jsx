@@ -27,6 +27,7 @@ import AdminOrderDetails from './pages/AdminOrderDetails';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import UserManagement from './pages/UserManagement';
+import ManageBanner from './pages/ManageBanner';
 
 function App() {
 
@@ -54,6 +55,10 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
               <Route path="/" element={<Dashboard />} />
+              <Route path="banner">
+                <Route index element={<ManageBanner />} />
+     
+              </Route>  
               <Route path="category">
                 <Route index element={<Category />} />
                 <Route path="add" element={<AddCategory />} />
@@ -88,7 +93,6 @@ function App() {
               </Route>
               <Route path="users">
                 <Route index element={<UserManagement />} />
-          
               </Route>
             </Route>
           </Route>
