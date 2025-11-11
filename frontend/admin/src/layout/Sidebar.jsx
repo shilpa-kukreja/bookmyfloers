@@ -25,7 +25,7 @@ const Sidebar = () => {
 
   // Navigation items with icons
  const navItems = [
-  { name: "Dashboard", path: "/", icon: <HomeIcon className="w-5 h-5 mr-2 inline-block" /> },
+  { name: "Dashboard", path: "/dashboard", icon: <HomeIcon className="w-5 h-5 mr-2 inline-block" /> },
   { name: "Manage Banner", path: "/banner", icon: <HomeIcon className="w-5 h-5 mr-2 inline-block" /> },
   { name: "Manage Category", path: "/category", icon: <RectangleStackIcon className="w-5 h-5 mr-2 inline-block" /> },
   { name: "Manage Sub Category", path: "/subcategory", icon: <Squares2X2Icon className="w-5 h-5 mr-2 inline-block" /> },

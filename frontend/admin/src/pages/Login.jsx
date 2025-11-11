@@ -27,7 +27,7 @@ const Login = () => {
       if (response.data.success) {
         localStorage.setItem('adminToken', response.data.adminToken);
         toast.success('Login successful! Redirecting...');
-        setTimeout(() => navigate('/'), 1500);
+        setTimeout(() => navigate('/dashboard'), 1500);
       }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Login failed. Please try again.');

@@ -54,7 +54,7 @@ function App() {
           {/* Protected routes - with layout */}
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
-              <Route path="/" element={<Dashboard />} />
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="banner">
                 <Route index element={<ManageBanner />} />
      
