@@ -17,7 +17,11 @@
 .product_card .product_card_img {
     position: relative;
     overflow: hidden;
+  
     /* box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;  */
+}
+.product_card .product_card_img img{ 
+    aspect-ratio: 4/5;
 }
 
 .product_card .icons {

@@ -24,26 +24,12 @@ const AboutUs = () => {
 
         <div className="about_wrapper">
           <div className="col-half">
-
-
             <img src={isAboutPage ? aboutuspage : aboutus} width="400px" height="auto" alt="aboutus" />
-
-
-
-
-
-
           </div>
           <div className="col-half">
-
             <div className="feature_content">
-
-
-
-
               {
                 isAboutPage ? (
-
                   <p   className='about_us_para'>
                     At the heart of Book my Flowers is our founder, Alok Yadav, a passionate creator with a lifelong love for flowers, flavors, and the joy they bring to people’s lives. What began as a small dream to blend the art of floral design with the comfort of freshly baked cakes has blossomed into a trusted destination for celebrations, surprises, and everyday beauty.
                     Alok has  started the journey with a simple belief: that every occasion—big or small—deserves something fresh, thoughtful, and handcrafted. With a background in floral design, pastry, event , they combined their talents to open , offering customers a one-stop shop for elegantly arranged blooms and decadent treats.

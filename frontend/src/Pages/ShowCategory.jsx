@@ -54,7 +54,7 @@
                         slidesPerView={5}
                         loop={true}
                         
-                        initialSlide={2}
+                        initialSlide={0}
                         grabCursor={true}
                         // centeredSlides={true}
                         //      autoplay={{

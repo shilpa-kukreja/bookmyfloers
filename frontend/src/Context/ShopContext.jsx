@@ -25,8 +25,7 @@ const ShopContextProvider = (props) => {
   const [blog, setBlog] = useState([]);
   const [product, setProduct] = useState([]);
   const [token, setToken] = useState(localStorage.getItem('token') || null);
-
-    const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null);
     // Function to verify token and set user
   const verifyToken = async () => {
    
@@ -65,11 +64,6 @@ const ShopContextProvider = (props) => {
   useEffect(() => {
     verifyToken();
   }, [token]);
-
-
-
-
-
 
    useEffect(() => {
         const fetchCategories = async () => {
@@ -260,7 +254,6 @@ const ShopContextProvider = (props) => {
     const variantName = variant ? variant.variantName : null
     // check same product 
     const existingIndex = cart.findIndex(
-
       (item) => item.id === productId && item.variantName === variantName
     )
 
