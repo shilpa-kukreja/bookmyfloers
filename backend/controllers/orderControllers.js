@@ -182,7 +182,10 @@ function generateOrderConfirmationEmail(order, customer) {
                 <p>Thank you for your order! We're preparing your items and will notify you when they're on their way.</p>
                 
                 <h3 style="margin-top: 25px;">Order #${order.order_id}</h3>
-                <p>Order Date: ${new Date(order.order_date).toLocaleDateString()}</p>
+                <p>Order Date: ${(() => {
+                        const d = new Date(order.order_date);
+                        return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+                    })()}</p>
                 
                 <table>
                     <thead>
