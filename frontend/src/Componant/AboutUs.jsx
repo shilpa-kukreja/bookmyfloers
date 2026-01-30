@@ -18,10 +18,10 @@ const AboutUs = () => {
 
 
   return (
-    <div className='aboutus_section'>
+    <div className='aboutus_section' >
 
       <div className="container">
-        <div className='category_section ' style={{ marginTop: '0px' }}>
+        <div className='category_section ' style={{ marginTop: '0px', paddingTop: '0px'}}>
             <h2 className='about_bmf '> About Book My Flowers </h2>
                     <p className='category_para '>
                         Love is a universal language, and throughout history, flowers have spoken it beautifully. At BMF, we believe that emotions come first — and there's no better way to express them than with nature’s most elegant creations.

@@ -327,7 +327,6 @@ const ShopContextProvider = (props) => {
     // check same product 
 
     const existingIndex = wishlist.findIndex(
-
       (item) => item.id === productId && item.variantName === variantName
     )
  

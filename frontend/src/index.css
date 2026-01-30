@@ -429,6 +429,7 @@ input::-webkit-inner-spin-button {
   padding: 10px 15px;
   border : 0;
   min-width: 270px;
+  max-width: 100%;
 }
 .serviablepincode button{
   padding: 10px 15px;

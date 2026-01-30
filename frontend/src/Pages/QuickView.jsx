@@ -275,13 +275,17 @@ const QuickView = () => {
                             <div className="quick_view_product_details">
 
                                 <h2>{quickViewProduct.name}</h2>
-                                              <hr />
+                                              <hr style={{
+                                                margin: '15px 0'
+                                              }} />
                                  <div 
                                     className='para'
                                     dangerouslySetInnerHTML={{ __html: quickViewProduct.description }} 
                                     />
 
-                                    <hr />
+                                     <hr style={{
+                                                margin : '15px 0'
+                                              }} />
                                                         
                                 {
                                     quickViewProduct.productType === 'simple' && (
