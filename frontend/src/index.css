@@ -469,6 +469,13 @@ input::-webkit-inner-spin-button {
   padding: 2px 12px !important;
 --toastify-toast-width : 250px !important;
 
+
+.serviceable_pincode {
+
+  min-width: 180px;
+
+}
+
 }
 
 
