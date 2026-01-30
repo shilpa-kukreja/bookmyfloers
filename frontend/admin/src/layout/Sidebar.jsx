@@ -35,6 +35,7 @@ const Sidebar = () => {
   { name: "Manage Blogs", path: "/blogs", icon: <BookOpenIcon className="w-5 h-5 mr-2 inline-block" /> },
   { name: "Manage Enquiry", path: "/contacts", icon: <EnvelopeIcon className="w-5 h-5 mr-2 inline-block" /> },
   { name: "Manage Users", path: "/users", icon: <UserCircleIcon className="w-5 h-5 mr-2 inline-block" /> },
+  { name: "Manage Pincodes", path: "/pincodes", icon: <UserCircleIcon className="w-5 h-5 mr-2 inline-block" /> },
   // { name: "Settings", path: "/settings", icon: <Cog6ToothIcon className="w-5 h-5 mr-2 inline-block" /> },
 ];
 

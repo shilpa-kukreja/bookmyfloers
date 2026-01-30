@@ -33,19 +33,16 @@ const Shop = () => {
     const { product, category, subcategory, addToCart, addToWishlist, handleQuickView, filterByPrice,
         clearPrice,
         selectedPrices,
-        getFilterProductByPrice, backend_url } = useContext(ShopContext);
-
-
+        getFilterProductByPrice, backend_url, openFilter, setOpenFilter } = useContext(ShopContext);
 
     const { categorySlug: selectedCategorySlug, subcategorySlug } = useParams();
-
 
     const [selectedVariants, setSelectedVariants] = useState({});
 
     const [openCategory, setOpenCategory] = useState(null)
 
     //  for mobile 
-    const [openFilter, setOpenFilter] = useState(false)
+    
     const toggleDropdown = (catId) => {
         setOpenCategory((prev) => (prev === catId ? null : catId));
     };
@@ -65,7 +62,7 @@ const Shop = () => {
     );
 
     const selectedCategoryId = selectedCategory?._id?.toString();
-    console.log(" selected category ", selectedCategoryId );
+
     const priceFilteredProducts = getFilterProductByPrice();
 
     const matchedSubcategory = subcategory.find(
@@ -92,16 +89,9 @@ const filteredProducts = priceFilteredProducts.filter((product) => {
     return matchesCategory && matchesSubcategory;
 });
 
-
-
-
-
     const getSubcategoriesByCategory = (categoryId) => {
          return subcategory.filter((sub) => String(sub.categoryId._id) === String(categoryId));
     };
-
-    console.log("subcategory", getSubcategoriesByCategory);
-
 
 
     useEffect(() => {
@@ -407,7 +397,7 @@ const filteredProducts = priceFilteredProducts.filter((product) => {
                     {/* Product Display */}
 
                     <div className="allProduct_slide">
-                        <div className="product_list">
+                        <div className="product_list mobile_product_grid">
                             {filteredProducts.length > 0 ? (
                                 filteredProducts.map((item) => {
 
@@ -421,32 +411,21 @@ const filteredProducts = priceFilteredProducts.filter((product) => {
                                         ? selectedVariant?.actualPrice
                                         : item.mrp;
 
-
                                     return (
 
                                         <div key={item._id} >
-
-
                                             <div className='product_card'>
                                                 <div className="product_card_img">
                                                     <Link to={`/product/${item.slug}`}>
-                                                        <img src={`${backend_url}${item.image}`} alt={item.name} />
+                                                        <img src={`${backend_url}${item.image}`} className='product_img' alt={item.name} />
                                                     </Link>
-
-
                                                     <div className='icons'>
-
                                                         <div data-tooltip-id='view-details' data-tooltip-content="View Details" >
                                                             <IoEyeOutline className='icon' onClick={() => handleQuickView(item)} />
-
                                                         </div>
                                                         <div data-tooltip-id='add-to-wishlist' data-tooltip-content="Add To Wishlist" onClick={() => handleWishlist(item)} >
                                                             <IoMdHeartEmpty className='icon' />
                                                         </div>
-
-
-
-
                                                         <Tooltip id="view-details"
                                                             place="top"
                                                             style={{ backgroundColor: '#000', color: '#fff', borderRadius: '0px', width: '90px', height: '25px', fontSize: '11px' }} />
@@ -457,16 +436,11 @@ const filteredProducts = priceFilteredProducts.filter((product) => {
                                                 </div>
 
                                                 <div className='about_product_detail'>
-
-
                                                     <div className="productslide_detail">
                                                         <Link to={`/product/${item.slug}`}>   <h4>{item.name}</h4></Link>
-
                                                         {/* <p>Category: {item.category}</p> */}
                                                         <div className="price_section">
-
                                                             <p>₹{currentPrice}</p>
-
                                                             <span className='discount_price'>₹{actualPrice}</span>
                                                         </div>
                                                         {item.productType === 'variable' && item.variant && (
@@ -483,29 +457,16 @@ const filteredProducts = priceFilteredProducts.filter((product) => {
                                                                 ))}
                                                             </div>
                                                         )}
-
-
-
-
-
                                                         <div className='rating_review'>
-
                                                             <div>
                                                                 <MdOutlineStarPurple500 color='#ffa51f' /> <MdOutlineStarPurple500 color='#ffa51f' /><MdOutlineStarPurple500 color='#ffa51f' /> <MdOutlineStarPurple500 color='#ffa51f' />
                                                             </div>
-                                                            <div>
-
-                                                            </div>
-
                                                         </div>
                                                     </div>
-
-
                                                     <div className="cart_btn">
                                                         <Link onClick={() => handleAddToCart(item)}>Add To Cart</Link>
                                                     </div>
                                                 </div>
-
                                             </div>
                                         </div>
                                     )

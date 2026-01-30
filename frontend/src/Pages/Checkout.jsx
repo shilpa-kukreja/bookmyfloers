@@ -1,19 +1,26 @@
-import React from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import '../assets/Css/Checkout.css'
-import { useContext } from 'react'
 import { ShopContext } from '../Context/ShopContext'
 import { RxCross2 } from "react-icons/rx";
-import { useState } from 'react';
 import rasorpay from '../assets/Image/icon/raserpay_icon.png'
 import { IoIosArrowDropdownCircle } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
+import { FiCheckCircle, FiXCircle, FiLoader } from "react-icons/fi";
 
 const Checkout = () => {
     const navigate = useNavigate();
+    const { cart, removeCart, coupons, user, backend_url } = useContext(ShopContext)
+    
+    // State variables
     const [showCoupon, setShowCoupon] = useState(false)
     const [selectedPayment, setSelectedPayment] = useState('cod')
     const [appliedCoupon, setAppliedCoupon] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
+    const [isCheckingPincode, setIsCheckingPincode] = useState(false)
+    const [pincodeStatus, setPincodeStatus] = useState(null) // null, 'valid', 'invalid'
+    const [pincodeMessage, setPincodeMessage] = useState('')
+    const [pincodeChecked, setPincodeChecked] = useState(false)
+    
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -22,12 +29,13 @@ const Checkout = () => {
         phone: '',
         city: '',
         state: '',
-        country: '',
+        country: 'India',
         address: ''
     })
 
-    const { cart, removeCart, coupons, user, backend_url } = useContext(ShopContext)
-
+    // Calculate totals
+    const Subtotal = cart.reduce((acc, item) => acc + item.quantity * item.discountPrice, 0)
+    
     const formatCouponDescription = (coupon) => {
         if (coupon.discounttype === 'percentage') {
             return `${coupon.discount}% off`;
@@ -36,6 +44,20 @@ const Checkout = () => {
         }
     };
 
+    const calculateDiscount = () => {
+        if (!appliedCoupon) return 0;
+        
+        if (appliedCoupon.discounttype === 'percentage') {
+            return (Subtotal * appliedCoupon.discount) / 100;
+        } else {
+            return appliedCoupon.discount;
+        }
+    };
+
+    const discount = calculateDiscount();
+    const totalPrice = Subtotal - discount;
+
+    // Apply/Remove coupon functions
     const applyCoupon = (coupon) => {
         setAppliedCoupon(coupon);
     };
@@ -44,48 +66,121 @@ const Checkout = () => {
         setAppliedCoupon(null);
     };
 
-    const calculateDiscount = () => {
-        if (!appliedCoupon) return 0;
+    // Handle form input changes
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
         
-        const subtotal = cart.reduce((acc, item) => acc + item.quantity * item.discountPrice, 0);
-        
-        if (appliedCoupon.discounttype === 'percentage') {
-            return (subtotal * appliedCoupon.discount) / 100;
+        // Special handling for pincode
+        if (name === 'pincode') {
+            const numericValue = value.replace(/\D/g, '').slice(0, 6);
+            setFormData(prev => ({
+                ...prev,
+                [name]: numericValue
+            }));
+            
+            // Reset pincode validation if pincode changes
+            if (numericValue.length === 6 && numericValue !== formData.pincode) {
+                setPincodeStatus(null);
+                setPincodeMessage('');
+                setPincodeChecked(false);
+            }
         } else {
-            return appliedCoupon.discount;
+            setFormData(prev => ({
+                ...prev,
+                [name]: value
+            }));
         }
     };
 
-    const Subtotal = cart.reduce((acc, item) => acc + item.quantity * item.discountPrice, 0)
-    const discount = calculateDiscount();
-    const totalPrice = Subtotal - discount;
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+    // Check pincode validity
+    const checkPincodeValidity = async () => {
+        const pincode = formData.pincode.trim();
+        
+        if (!pincode || pincode.length !== 6) {
+            setPincodeMessage('Please enter a valid 6-digit pincode');
+            setPincodeStatus('invalid');
+            setPincodeChecked(true);
+            return;
+        }
+        
+        try {
+            setIsCheckingPincode(true);
+            setPincodeMessage('Checking pincode...');
+            setPincodeStatus(null);
+            
+            const response = await fetch(`${backend_url}/api/pincode/check-pincode`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ pincode: parseInt(pincode) })
+            });
+            
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                setPincodeStatus('valid');
+                setPincodeMessage(' Pincode is serviceable');
+                setPincodeChecked(true);
+            } else {
+                setPincodeStatus('invalid');
+                setPincodeMessage(data.message || ' Pincode is not serviceable');
+                setPincodeChecked(true);
+            }
+        } catch (error) {
+            console.error('Error checking pincode:', error);
+            setPincodeStatus('invalid');
+            setPincodeMessage(' Error checking pincode');
+            setPincodeChecked(true);
+        } finally {
+            setIsCheckingPincode(false);
+        }
     };
 
+    // Auto-check pincode when it reaches 6 digits
+    useEffect(() => {
+        if (formData.pincode.length === 6 && !pincodeChecked) {
+            const timer = setTimeout(() => {
+                checkPincodeValidity();
+            }, 500);
+            
+            return () => clearTimeout(timer);
+        }
+    }, [formData.pincode]);
+
+    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         
+        // Validation checks
         if (cart.length === 0) {
             alert('Your cart is empty');
             return;
         }
 
-        // Validate form
-        for (const key in formData) {
-            if (formData[key].trim() === '') {
-                alert(`Please fill in ${key}`);
+        // Check if pincode is valid
+        if (!pincodeChecked) {
+            alert('Please wait while we check your pincode');
+            return;
+        }
+
+        if (pincodeStatus !== 'valid') {
+            alert('Please enter a serviceable pincode to place your order');
+            return;
+        }
+
+        // Validate required fields
+        const requiredFields = ['firstName', 'lastName', 'email', 'pincode', 'phone', 'city', 'state', 'country', 'address'];
+        for (const field of requiredFields) {
+            if (!formData[field]?.trim()) {
+                alert(`Please fill in ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
                 return;
             }
         }
 
         setIsLoading(true);
 
+        // Prepare order data
         const orderData = {
             order_id: `ORD-${Date.now()}`,
             order_date: new Date(),
@@ -107,7 +202,9 @@ const Checkout = () => {
                 userId: user ? user._id : null
             },
             payment_method: selectedPayment,
-            payment_status: selectedPayment === 'cod' ? 'pending' : 'pending'
+            payment_status: selectedPayment === 'cod' ? 'pending' : 'pending',
+            pincode_validated: true,
+            pincode_validation_date: new Date()
         };
 
         try {
@@ -122,7 +219,7 @@ const Checkout = () => {
             const data = await response.json();
             
             if (response.ok) {
-                // Simulate a small delay for better UX
+                // Clear cart and navigate to confirmation
                 setTimeout(() => {
                     localStorage.removeItem('cartData');
                     navigate('/order-confirmation', { 
@@ -143,7 +240,7 @@ const Checkout = () => {
         }
     };
 
-    // Beautiful Loader Component
+    // Loader Component
     const Loader = () => (
         <div className="loader-overlay">
             <div className="loader-container">
@@ -162,6 +259,7 @@ const Checkout = () => {
             
             <div className="container">
                 <div className="checkout_wrapper">
+                    {/* Order Summary Section */}
                     <div className="col-half">
                         <div className="order_summery">
                             <h3>Order Summary</h3>
@@ -190,6 +288,7 @@ const Checkout = () => {
                                 ))}
                             </div>
 
+                            {/* Coupon Section */}
                             <div className="discount_coupon">
                                 <div className='main_heading' onClick={() => setShowCoupon(!showCoupon)}>
                                     <div>
@@ -203,7 +302,7 @@ const Checkout = () => {
                                         )}
                                     </div>
                                     <div>
-                                        <IoIosArrowDropdownCircle className='icon' />
+                                        <IoIosArrowDropdownCircle className={`icon ${showCoupon ? 'rotate' : ''}`} />
                                     </div>
                                 </div>
                                 <ul>
@@ -215,7 +314,7 @@ const Checkout = () => {
                                                         <strong>{appliedCoupon.couponCode}</strong> – {formatCouponDescription(appliedCoupon)}
                                                     </div>
                                                 </div>
-                                                <button onClick={removeCoupon} className='apply_btn'>
+                                                <button onClick={removeCoupon} className='apply_btn remove'>
                                                     Remove
                                                 </button>
                                             </li>
@@ -237,11 +336,12 @@ const Checkout = () => {
                                 </ul>
                             </div>
 
+                            {/* Price Summary */}
                             <div className="total_amount">
                                 <div className="price_show">
                                     <ul>
                                         <li>Subtotal</li>
-                                        <li>₹{Subtotal}</li>
+                                        <li>₹{Subtotal.toFixed(2)}</li>
                                     </ul>
                                     <ul>
                                         <li>Shipping</li>
@@ -250,7 +350,7 @@ const Checkout = () => {
                                     {discount > 0 && (
                                         <ul>
                                             <li>Discount</li>
-                                            <li>₹{discount}</li>
+                                            <li>-₹{discount.toFixed(2)}</li>
                                         </ul>
                                     )}
                                 </div>
@@ -258,22 +358,24 @@ const Checkout = () => {
                                 <div className="actual_total_amount">
                                     <ul>
                                         <li>Total</li>
-                                        <li>₹{totalPrice}</li>
+                                        <li>₹{totalPrice.toFixed(2)}</li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    {/* Billing & Payment Section */}
                     <div className="col-half">
                         <div className="checkout_form">
                             <h3>Billing Address</h3>
                             <form id='form' onSubmit={handleSubmit}>
+                                {/* Name Fields */}
                                 <div className="form_group w-50">
                                     <input 
                                         type="text" 
                                         className='form_control' 
-                                        placeholder='First Name' 
+                                        placeholder='First Name *' 
                                         name="firstName"
                                         value={formData.firstName}
                                         onChange={handleInputChange}
@@ -284,18 +386,20 @@ const Checkout = () => {
                                     <input 
                                         type="text" 
                                         className='form_control' 
-                                        placeholder='Last Name' 
+                                        placeholder='Last Name *' 
                                         name="lastName"
                                         value={formData.lastName}
                                         onChange={handleInputChange}
                                         required 
                                     />
                                 </div>
+                                
+                                {/* Contact Fields */}
                                 <div className="form_group w-50">
                                     <input 
                                         type="email" 
                                         className='form_control' 
-                                        placeholder='Enter Email' 
+                                        placeholder='Email Address *' 
                                         name="email"
                                         value={formData.email}
                                         onChange={handleInputChange}
@@ -306,71 +410,113 @@ const Checkout = () => {
                                     <input 
                                         type="tel" 
                                         className='form_control' 
-                                        required 
-                                        placeholder='Enter Pin Code'
-                                        name="pincode"
-                                        value={formData.pincode}
-                                        onChange={handleInputChange}
-                                    />
-                                </div>
-                                <div className="form_group w-50">
-                                    <input 
-                                        type="tel" 
-                                        className='form_control' 
-                                        required 
-                                        placeholder='Enter Number'
+                                        placeholder='Phone Number *'
                                         name="phone"
                                         value={formData.phone}
                                         onChange={handleInputChange}
+                                        pattern="[0-9]{10}"
+                                        maxLength="10"
+                                        required 
                                     />
                                 </div>
+                                
+                                {/* Pincode Field with Validation */}
+                                <div className="form_group w-50">
+                                    <div className="pincode-input-wrapper">
+                                        <input 
+                                            type="text" 
+                                            className={`form_control ${pincodeStatus ? `pincode-${pincodeStatus}` : ''}`}
+                                            placeholder='Pincode *'
+                                            name="pincode"
+                                            value={formData.pincode}
+                                            onChange={handleInputChange}
+                                            maxLength="6"
+                                            required 
+                                        />
+                                    <div className="pincode-icon" style={{display : 'flex', alignItems : 'center'}}>
+                                        {isCheckingPincode && (
+                               
+                                                <FiLoader className="spin" style={{marginTop : '5px'}} />
+                                          
+                                        )}
+                                        {pincodeStatus === 'valid' && (
+                                        
+                                                <FiCheckCircle style={{marginTop : '5px'}} />
+                           
+                                        )}
+                                        {pincodeStatus === 'invalid' && (
+                                          
+                                                <FiXCircle style={{marginTop : '5px'}} />
+                                         
+                                        )}
+                                        {pincodeMessage && (
+                                             <div className={`pincode-message ${pincodeStatus === 'invalid' ? 'error' : 'valid'}`}>
+                                                {pincodeMessage}
+                                                {pincodeStatus === 'invalid' && !isCheckingPincode && (
+                                                    <></>
+                                                )}
+                                            </div>
+                                        )}
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                
+                                {/* Location Fields */}
                                 <div className="form_group w-50">
                                     <input 
                                         type="text" 
                                         className='form_control' 
-                                        required 
-                                        placeholder='City Name'
+                                        placeholder='City *'
                                         name="city"
                                         value={formData.city}
                                         onChange={handleInputChange}
+                                        required 
                                     />
                                 </div>
                                 <div className="form_group w-50">
                                     <input 
                                         type="text" 
                                         className='form_control' 
-                                        required 
-                                        placeholder='State Name'
+                                        placeholder='State *'
                                         name="state"
                                         value={formData.state}
                                         onChange={handleInputChange}
+                                        required 
                                     />
                                 </div>
                                 <div className="form_group w-50">
                                     <input 
                                         type="text" 
                                         className='form_control' 
-                                        required 
-                                        placeholder='Country Name'
+                                        placeholder='Country *'
                                         name="country"
                                         value={formData.country}
                                         onChange={handleInputChange}
+                                        required 
                                     />
                                 </div>
                                 <div className="form_group w-100">
-                                    <input 
-                                        type="text" 
-                                        className='form_control' 
-                                        required 
-                                        placeholder='Enter Address'
+                                    <textarea 
+                                        className='form_control address-textarea' 
+                                        placeholder='Complete Address *'
                                         name="address"
                                         value={formData.address}
                                         onChange={handleInputChange}
+                                        rows="3"
+                                        required 
                                     />
                                 </div>
                             </form>
                         </div>
-
+                          {/* Pincode Warning */}
+                            {pincodeChecked && pincodeStatus !== 'valid' && (
+                                <div className="pincode-warning " style={{color:'red'}}>
+                                    <FiXCircle />
+                                    <span>Please enter a serviceable pincode to place your order</span>
+                                </div>
+                            )}
+                        {/* Payment Method Section */}
                         <div className="payment_method">
                             <h3>Payment Method</h3>
                             <div 
@@ -387,14 +533,24 @@ const Checkout = () => {
                                 Cash On Delivery
                             </div>
 
+                            {/* Order Button with Validation */}
                             <button 
                                 type='submit' 
                                 form='form' 
-                                className='place_order_btn'
-                                disabled={isLoading}
+                                className={`place_order_btn ${pincodeStatus !== 'valid' ? 'disabled' : ''}`}
+                                disabled={isLoading || pincodeStatus !== 'valid'}
+                                title={pincodeStatus !== 'valid' ? 'Please enter a valid serviceable pincode' : ''}
                             >
-                                {isLoading ? 'Processing...' : 'Place Order'}
+                                {isLoading ? (
+                                    <>
+                                        <FiLoader className="spin" /> Processing...
+                                    </>
+                                ) : (
+                                    'Place Order'
+                                )}
                             </button>
+                            
+                          
                         </div>
                     </div>
                 </div>

@@ -28,6 +28,7 @@ import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import UserManagement from './pages/UserManagement';
 import ManageBanner from './pages/ManageBanner';
+import ManagePincodes from './pages/ManagePincodes';
 
 function App() {
 
@@ -57,6 +58,10 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="banner">
                 <Route index element={<ManageBanner />} />
+     
+              </Route>  
+              <Route path="pincodes">
+                <Route index element={<ManagePincodes />} />
      
               </Route>  
               <Route path="category">

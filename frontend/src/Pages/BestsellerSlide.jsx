@@ -22,6 +22,8 @@ const BestsellerSlide = () => {
     const { product, addToCart, addToWishlist, handleQuickView, backend_url } = useContext(ShopContext);
     const [bestsellerProduct, setBestsellerProduct] = useState([]);
     const [selectVariant, setSelectVariant] = useState({})
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
 
     useEffect(() => {
         if (Array.isArray(product)) {
@@ -43,11 +45,6 @@ const BestsellerSlide = () => {
             setSelectVariant(initialVariants);
         }
     }, [product]);
-
-
-    console.log("allbestSellerProduct", bestsellerProduct)
-
-
 
     const handleVariantClick = (productId, variant) => {
         setSelectVariant(prev => ({ ...prev, [productId]: variant }));
@@ -108,93 +105,148 @@ const BestsellerSlide = () => {
                     <div className="bestseller_products">
 
                         <div className="grid_box">
-                            {
-                                bestsellerProduct.map(product => {
+                            
+                                {(windowWidth < 576) ? 
+                                <div className='mobile_product_grid' >
+                                    {bestsellerProduct.map(product => {
                                     const currentPrice = selectVariant[product._id]?.discountPrice || product.discountedPrice;
                                     const actualPrice = selectVariant[product._id]?.actualPrice || product.mrp;
 
-                                    return (
-
-
-                                        <div key={product._id}>
-
-                                            <div className='product_card'>
-                                                <div className="product_card_img">
-                                                    <Link to={`product/${product.slug}`}>
-
-                                                        <img src={`${backend_url}${product.image}`} alt={product.name} />
-                                                    </Link>
-
-
-                                                    <div className='icons'>
-
-
-                                                        <div data-tooltip-id='view-details' data-tooltip-content="View Details" >
-                                                            <IoEyeOutline className='icon' onClick={() => handleQuickView(product)} />
-
+                                        return (
+                                            <div key={product._id}>
+                                                <div className='product_card'>
+                                                    <div className="product_card_img">
+                                                        <Link to={`product/${product.slug}`}>
+                                                            <img src={`${backend_url}${product.image}`} alt={product.name} />
+                                                        </Link>
+                                                        <div className='icons'>
+                                                            <div data-tooltip-id='view-details' data-tooltip-content="View Details" >
+                                                                <IoEyeOutline className='icon' onClick={() => handleQuickView(product)} />
+                                                            </div>
+                                                            <div data-tooltip-id='add-to-wishlist' data-tooltip-content="Add To Wishlist">
+                                                                <IoMdHeartEmpty className='icon' onClick={() => handleWishlist(product)} />
+                                                            </div>
+                                                            <Tooltip id="view-details"
+                                                                place="top"
+                                                                style={{ backgroundColor: '#000', color: '#fff', borderRadius: '0px', width: '90px', height: '28px', fontSize: '11px' }} />
+                                                            <Tooltip id="add-to-wishlist"
+                                                                place="top"
+                                                                style={{ backgroundColor: '#000', color: '#fff', borderRadius: '0px', width: '90px', height: '30px', fontSize: '11px' }} />
                                                         </div>
-                                                        <div data-tooltip-id='add-to-wishlist' data-tooltip-content="Add To Wishlist">
-                                                            <IoMdHeartEmpty className='icon' onClick={() => handleWishlist(product)} />
-                                                        </div>
-
-                                                        {/*  tool top */}
-
-
-
-                                                        <Tooltip id="view-details"
-                                                            place="top"
-                                                            style={{ backgroundColor: '#000', color: '#fff', borderRadius: '0px', width: '90px', height: '28px', fontSize: '11px' }} />
-                                                        <Tooltip id="add-to-wishlist"
-                                                            place="top"
-                                                            style={{ backgroundColor: '#000', color: '#fff', borderRadius: '0px', width: '90px', height: '30px', fontSize: '11px' }} />
                                                     </div>
+                                                    <div className='about_product_detail'>
+                                                        <div className="productslide_detail">
+                                                            <Link to={`product/${product.slug}`}>      <h4>{product.name}</h4> </Link>
+                                                            <div className="price_section">
+                                                                <p>₹{currentPrice}</p>
+                                                                <span className='discount_price'>₹{actualPrice}</span>
+                                                            </div>
+                                                            {product.productType === 'variable' && (
+                                                                <div className="variant_tabs">
+                                                                    {product.variant?.map((variant, index) => (
+                                                                        <button
+                                                                            key={index}
+                                                                            className={`variant_btn ${selectVariant[product._id]?.variantName === variant.variantName ? 'active' : ''}`}
+                                                                            onClick={() => handleVariantClick(product._id, variant)}
+                                                                        >
+                                                                            {variant.variantName}
+                                                                        </button>
+                                                                    ))}
+                                                                </div>
+                                                            )}
+
+
+                                                            <div className='rating_review'>
+
+                                                                <div>
+                                                                    <MdOutlineStarPurple500 color='#ffa51f' /> <MdOutlineStarPurple500 color='#ffa51f' /><MdOutlineStarPurple500 color='#ffa51f' /> <MdOutlineStarPurple500 color='#ffa51f' />
+                                                                </div>
+                                                                <div>
+                                                                    {/* 23 reviews */}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="cart_btn">
+                                                            <Link onClick={() => handleAddToCart(product)}>Add To Cart</Link>
+                                                        </div>
+                                                    </div>
+
                                                 </div>
-
-                                                <div className='about_product_detail'>
-
-                                                    <div className="productslide_detail">
-
-                                                          <Link to={`product/${product.slug}`}>      <h4>{product.name}</h4> </Link>
-                                                     
-                                                        <div className="price_section">
-                                                            <p>₹{currentPrice}</p>
-                                                            <span className='discount_price'>₹{actualPrice}</span>
-                                                        </div>
-                                                        {product.productType === 'variable' && (
-                                                            <div className="variant_tabs">
-                                                                {product.variant?.map((variant, index) => (
-                                                                    <button
-                                                                        key={index}
-                                                                        className={`variant_btn ${selectVariant[product._id]?.variantName === variant.variantName ? 'active' : ''}`}
-                                                                        onClick={() => handleVariantClick(product._id, variant)}
-                                                                    >
-                                                                        {variant.variantName}
-                                                                    </button>
-                                                                ))}
-                                                            </div>
-                                                        )}
-
-
-                                                        <div className='rating_review'>
-
-                                                            <div>
-                                                                <MdOutlineStarPurple500 color='#ffa51f' /> <MdOutlineStarPurple500 color='#ffa51f' /><MdOutlineStarPurple500 color='#ffa51f' /> <MdOutlineStarPurple500 color='#ffa51f' />
-                                                            </div>
-                                                            <div>
-                                                                {/* 23 reviews */}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="cart_btn">
-                                                        <Link onClick={() => handleAddToCart(product)}>Add To Cart</Link>
-                                                    </div>
-                                                </div>
-
                                             </div>
-                                        </div>
-                                    )
-                                })
+                                        )
+                                    })}
+                                </div>
+                                :
+                              
+                                    bestsellerProduct.map(product => {
+                                    const currentPrice = selectVariant[product._id]?.discountPrice || product.discountedPrice;
+                                    const actualPrice = selectVariant[product._id]?.actualPrice || product.mrp;
+
+                                        return (
+                                            <div key={product._id}>
+                                                <div className='product_card'>
+                                                    <div className="product_card_img">
+                                                        <Link to={`product/${product.slug}`}>
+                                                            <img src={`${backend_url}${product.image}`} alt={product.name} />
+                                                        </Link>
+                                                        <div className='icons'>
+                                                            <div data-tooltip-id='view-details' data-tooltip-content="View Details" >
+                                                                <IoEyeOutline className='icon' onClick={() => handleQuickView(product)} />
+                                                            </div>
+                                                            <div data-tooltip-id='add-to-wishlist' data-tooltip-content="Add To Wishlist">
+                                                                <IoMdHeartEmpty className='icon' onClick={() => handleWishlist(product)} />
+                                                            </div>
+                                                            <Tooltip id="view-details"
+                                                                place="top"
+                                                                style={{ backgroundColor: '#000', color: '#fff', borderRadius: '0px', width: '90px', height: '28px', fontSize: '11px' }} />
+                                                            <Tooltip id="add-to-wishlist"
+                                                                place="top"
+                                                                style={{ backgroundColor: '#000', color: '#fff', borderRadius: '0px', width: '90px', height: '30px', fontSize: '11px' }} />
+                                                        </div>
+                                                    </div>
+                                                    <div className='about_product_detail'>
+                                                        <div className="productslide_detail">
+                                                            <Link to={`product/${product.slug}`}>      <h4>{product.name}</h4> </Link>
+                                                            <div className="price_section">
+                                                                <p>₹{currentPrice}</p>
+                                                                <span className='discount_price'>₹{actualPrice}</span>
+                                                            </div>
+                                                            {product.productType === 'variable' && (
+                                                                <div className="variant_tabs">
+                                                                    {product.variant?.map((variant, index) => (
+                                                                        <button
+                                                                            key={index}
+                                                                            className={`variant_btn ${selectVariant[product._id]?.variantName === variant.variantName ? 'active' : ''}`}
+                                                                            onClick={() => handleVariantClick(product._id, variant)}
+                                                                        >
+                                                                            {variant.variantName}
+                                                                        </button>
+                                                                    ))}
+                                                                </div>
+                                                            )}
+
+
+                                                            <div className='rating_review'>
+
+                                                                <div>
+                                                                    <MdOutlineStarPurple500 color='#ffa51f' /> <MdOutlineStarPurple500 color='#ffa51f' /><MdOutlineStarPurple500 color='#ffa51f' /> <MdOutlineStarPurple500 color='#ffa51f' />
+                                                                </div>
+                                                                <div>
+                                                                    {/* 23 reviews */}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="cart_btn">
+                                                            <Link onClick={() => handleAddToCart(product)}>Add To Cart</Link>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        )
+                                    })
                             }
+                          
                         </div>
                     </div>
                 </div>

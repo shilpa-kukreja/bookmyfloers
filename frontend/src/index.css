@@ -417,6 +417,50 @@ input::-webkit-inner-spin-button {
 }
 
 
+.serviablepincode{
+  margin-top: 15px;
+}
+
+.serviablepincode h4{
+  margin-bottom: 5px;
+}
+
+.serviceable_pincode {
+  padding: 10px 15px;
+  border : 0;
+  min-width: 270px;
+}
+.serviablepincode button{
+  padding: 10px 15px;
+  border : 0;
+}
+
+.serviable_pincode_box{
+  display: flex;
+  align-items: center;
+  border : 1px solid #A18E6C;
+  width: fit-content;
+  padding: 0;
+
+}
+
+.serviceable_pincode:focus {
+  outline: none;
+}
+
+.pincode-message{
+ 
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.pincode-message.error{
+  color: red;
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 @media screen and (max-width: 756px) and (min-width: 0px) {
 /* toastify css */
 .Toastify__toast  {
@@ -463,6 +507,19 @@ input::-webkit-inner-spin-button {
 
 .category_slides .category_name{
   font-size: 13px;
+}
+
+.mobile_category-slides{
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+
+}
+.mobile_product_grid{
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important ;
+  gap: 10px;
 }
 
 

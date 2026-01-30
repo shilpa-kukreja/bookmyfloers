@@ -25,7 +25,7 @@ const ProductSlider = () => {
     const { product, addToCart, addToWishlist, toggleWishlist, wishlist, handleQuickView, closeQuickView, backend_url } = useContext(ShopContext)
     const [showProduct, setShowProduct] = useState([])
     const [selectVariant, setSelectVariant] = useState({})
-
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
 
     useEffect(() => {
@@ -92,6 +92,88 @@ const ProductSlider = () => {
 
 
                 <div className="product_grid">
+
+                    {(windowWidth < 576) ?  
+                        <div className='mobile_product_grid'>
+                            {showProduct.map(item => {
+
+                                const currentPrice = selectVariant[item._id]?.discountPrice || item.discountedPrice;
+                                const actualPrice = selectVariant[item._id]?.actualPrice || item.mrp;
+
+
+                                return (
+                                    
+                                        <div className='product_card' key={item._id}>
+                                            <div className="product_card_img">
+
+                                                <Link to={`product/${item.slug}`}>
+                                                    <img src={`${backend_url}${item.image}`} className='w-100 product_img'  alt={item.name} />
+                                                </Link>
+
+                                                <div className='icons'>
+
+                                                    <div data-tooltip-id='view-details' data-tooltip-content="View Details">
+                                                        <IoEyeOutline className='icon' onClick={() => handleQuickView(item)} />
+                                                    </div>
+                                                    <div data-tooltip-id='add-to-wishlist' data-tooltip-content="Add To Wishlist">
+                                                        <IoMdHeartEmpty className='icon' onClick={() => handleWishlist(item)} />
+                                                    </div>
+
+                                                    <Tooltip id="view-details"
+                                                        place="top"
+                                                        style={{ backgroundColor: '#000', color: '#fff', borderRadius: '0px', width: '90px', height: '30px', fontSize: '11px',cursor:'pointer'  }} />
+                                                    <Tooltip id="add-to-wishlist"
+                                                        place="top"
+                                                        style={{ backgroundColor: '#000', color: '#fff', borderRadius: '0px', width: '90px', height: '30px', fontSize: '11px',cursor:'pointer' }} />
+
+                                                </div>
+                                            </div>
+
+                                            <div className='about_product_detail'>
+                                                <div className='productslide_detail'>
+
+                                                    <Link to={`product/${item.slug}`}>
+                                                        <h4>{item.name}</h4>
+
+                                                    </Link>
+                                                    <div className="price_section">
+                                                        <p>₹{currentPrice}</p>
+                                                        <span className='discount_price'>₹{actualPrice}</span>
+                                                    </div>
+
+                                                    {item.productType === 'variable' && (
+                                                        <div className="variant_tabs">
+                                                            {item.variant?.map((variant, index) => (
+                                                                <button
+                                                                    key={index}
+                                                                    className={`variant_btn ${selectVariant[item._id]?.variantName === variant.variantName ? 'active' : ''}`}
+                                                                    onClick={() => handleVariantClick(item._id, variant)}
+                                                                >
+                                                                    {variant.variantName}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    )}
+
+                                                    <div className='rating_review'>
+                                                        <MdOutlineStarPurple500 color='#ffa51f' />
+                                                        <MdOutlineStarPurple500 color='#ffa51f' />
+                                                        <MdOutlineStarPurple500 color='#ffa51f' />
+                                                        <MdOutlineStarPurple500 color='#ffa51f' />
+                                                    </div>
+                                                </div>
+
+                                                <div className="cart_btn">
+                                                    <Link onClick={() => handleAddToCart(item)}>Add To Cart</Link>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                 
+                                );
+                            })}
+                        </div>
+                        :
                     <Swiper
                         className="my-swiper"
                         modules={[Pagination]}
@@ -130,7 +212,7 @@ const ProductSlider = () => {
                                             <div className="product_card_img">
 
                                                 <Link to={`product/${item.slug}`}>
-                                                    <img src={`${backend_url}${item.image}`} alt={item.name} />
+                                                    <img src={`${backend_url}${item.image}`} className='w-100 product_img'  alt={item.name} />
                                                 </Link>
 
                                                 <div className='icons'>
@@ -197,22 +279,8 @@ const ProductSlider = () => {
                             })
                         }
                     </Swiper>
-
-
-
-
-
+                    }
                 </div>
-
-
-
-
-
-
-
-
-
-
             </div>
         </div>
     )

@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import topbanner from '../assets/Image/bookmyshow/logo/mainbanner/topbanner.jpg'
-import { useContext } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import { ShopContext } from '../Context/ShopContext'
 import { MdOutlineStarPurple500 } from "react-icons/md";
 import { SwiperSlide, Swiper } from 'swiper/react'
@@ -13,41 +11,47 @@ import { IoShareSocial } from "react-icons/io5";
 import { LuMinus } from "react-icons/lu";
 import { GoPlus } from "react-icons/go";
 import IncenseProcess from './IncenseProcess'
-
-import productdetailbanner from '../assets/Image/bookmyshow/logo/mainbanner/topbanner/products detailsbanner.jpg'
 import { IoMdHeartEmpty } from "react-icons/io";
-import icons from '../assets/Image/icon/Dhoop_Sticks.png'
 import RelatedProduct from './RelatedProduct'
-import { useNavigate } from 'react-router-dom'
 import '../assets/Css/ProductSlider.css'
+import axios from 'axios';
+
+// Import your images
+import productdetailbanner from '../assets/Image/bookmyshow/logo/mainbanner/topbanner/products detailsbanner.jpg'
 
 const ProductDetail = () => {
-
     const { slug } = useParams()
-
     const { product, addToCart, wishlist, addToWishlist, increseQuantity, decreaseQuantity, backend_url } = useContext(ShopContext)
-
+    const navigate = useNavigate()
+    
     const [fetchProduct, setFetchProduct] = useState(null)
     const [selectVariant, setSelectVariant] = useState({})
-    const [thumbsSwiper, setThumbsSwiper] = useState(null);
-
-    const navigate = useNavigate()
-
+    const [thumbsSwiper, setThumbsSwiper] = useState(null)
+    const [serviceablePincode, setServiceablePincode] = useState('')
+    const [pincodeMessage, setPincodeMessage] = useState('')
+    const [pincodeMessageType, setPincodeMessageType] = useState('') // 'success' or 'error'
     const [quantity, setQuantity] = useState(1)
+    const [modalIsOpen, setModalIsOpen] = useState(false)
+    const [modalImg, setModalImg] = useState('')
+    const [isCheckingPincode, setIsCheckingPincode] = useState(false)
 
     const handleIncrease = () => {
         setQuantity(quantity + 1);
-        increseQuantity(id, selectVariant?.variantName)
+        increseQuantity(fetchProduct?._id, selectVariant?.variantName)
     };
 
     const handleDecrease = () => {
         if (quantity > 1) {
-
             setQuantity(quantity - 1);
-            decreaseQuantity(id, selectVariant?.variantName)
+            decreaseQuantity(fetchProduct?._id, selectVariant?.variantName)
         }
     };
 
+    const handleQuantity = (value) => {
+        if (value >= 1) {
+            setQuantity(value);
+        }
+    };
 
     const handleWishlist = (item) => {
         const selected = item.productType === 'variable' ? selectVariant : null;
@@ -56,23 +60,16 @@ const ProductDetail = () => {
             alert("Please select a variant");
             return;
         }
-
         
         addToWishlist(item, selected);
     };
 
-    //  for zoomed img 
-    const [modalIsOpen, setModalIsOpen] = useState(false)
-    const [modalImg, setModalImg] = useState('')
-
-
-    // Open modal with clicked image
+    // For zoomed img 
     const openModal = (img) => {
         setModalImg(img)
         setModalIsOpen(true)
     }
 
-    // Close modal
     const closeModal = () => setModalIsOpen(false)
 
     useEffect(() => {
@@ -81,16 +78,10 @@ const ProductDetail = () => {
 
         if (findProduct?.productType === 'variable' && findProduct.variant?.length) {
             setSelectVariant(findProduct.variant[0])
-
         }
-
     }, [slug, product])
 
-
-
     const handleAddToCart = (item, isBuyNow = false) => {
-
-
         if (item.productType === 'variable' && !selectVariant?.variantName) {
             alert("Please select a variant");
             return;
@@ -103,13 +94,11 @@ const ProductDetail = () => {
         }
     };
 
-
-    // product share 
-
+    // Product share 
     const handleShare = () => {
         if (navigator.share) {
             navigator.share({
-                title: 'Check out this product!',
+                title: fetchProduct?.name || 'Check out this product!',
                 text: 'Take a look at this awesome product:',
                 url: window.location.href,
             })
@@ -122,37 +111,82 @@ const ProductDetail = () => {
         }
     };
 
-
-
-
-
-    if (!fetchProduct) {
-        return <div>Loading...</div>;
-    }
-
     const handleVariantSelect = (variant) => {
         setSelectVariant(variant)
     }
 
-    const images = [fetchProduct.image, ...(fetchProduct.galleryImage || [])];
+    // Pincode check function
+    const handleCheckServiceablePincode = async () => {
+        const pincode = serviceablePincode.trim();
+        
+        if (!pincode) {
+            setPincodeMessage('Please enter a pincode');
+            setPincodeMessageType('error');
+            return;
+        }
+        
+        if (!/^\d{6}$/.test(pincode)) {
+            setPincodeMessage('Please enter a valid 6-digit pincode');
+            setPincodeMessageType('error');
+            return;
+        }
+        
+        try {
+            setIsCheckingPincode(true);
+            setPincodeMessage('Checking pincode...');
+            setPincodeMessageType('info');
+            
+            const response = await axios.post(`${backend_url}/api/pincode/check-pincode`, { 
+                pincode: parseInt(pincode) 
+            });
+            
+            console.log('Pincode check response:', response.data);
+            
+            if (response.data.status === 'success') {
+                setPincodeMessage(`✅ ${response.data.message}`);
+                setPincodeMessageType('success');
+            } else {
+                setPincodeMessage(`❌ ${response.data.message}`);
+                setPincodeMessageType('error');
+            }
+            
+            // Clear message after 5 seconds
+            setTimeout(() => {
+                setPincodeMessage('');
+                setPincodeMessageType('');
+            }, 5000);
+            
+        } catch (error) {
+            console.error('Error checking pincode:', error);
+            setPincodeMessage('❌ Error checking pincode. Please try again.');
+            setPincodeMessageType('error');
+            
+            // Clear message after 5 seconds
+            setTimeout(() => {
+                setPincodeMessage('');
+                setPincodeMessageType('');
+            }, 5000);
+        } finally {
+            setIsCheckingPincode(false);
+        }
+    };
 
-    // console.log("fetch Product", fetchProduct);
+    if (!fetchProduct) {
+        return <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>;
+    }
+
+    const images = [fetchProduct.image, ...(fetchProduct.galleryImage || [])];
 
     return (
         <>
-
             <div className='productDetail_wrapper'>
-                <img src={productdetailbanner} width='100%' alt="aboutus banner" />
-
-
+                <img src={productdetailbanner} width='100%' alt="product detail banner" />
                 <div className="container">
                     <div className="productDetail_section">
                         <div className="col-half">
                             <div className="productImg_wrapper">
-
-
-
-
                                 <div className="thumbnail_img">
                                     <Swiper
                                         onSwiper={setThumbsSwiper}
@@ -161,24 +195,26 @@ const ProductDetail = () => {
                                         slidesPerView={4}
                                         watchSlidesProgress={true}
                                         slideToClickedSlide={true}
-                                        className="thumbSwiper"
+                                        className="thumbSwiper "
                                         breakpoints={{
                                             0: {
-                                                direction: 'horizontal', // Mobile (under 768px)
+                                                direction: 'horizontal',
                                             },
                                             768: {
-                                                direction: 'vertical',   // Tablet & Desktop (768px and up)
+                                                direction: 'vertical',
                                             }
                                         }}
                                     >
-
                                         {images.map((img, idx) => (
                                             <SwiperSlide key={idx}>
-                                                <img src={`${backend_url}${img}`} alt={`Thumb ${idx}`} className="thumbImg" width="100%" />
-
+                                                <img 
+                                                    src={`${backend_url}${img}`} 
+                                                    alt={`Thumb ${idx}`} 
+                                                    className="thumbImg" 
+                                                    width="100%" 
+                                                />
                                             </SwiperSlide>
                                         ))}
-
                                     </Swiper>
 
                                     <Modal
@@ -206,7 +242,6 @@ const ProductDetail = () => {
                                             },
                                         }}
                                     >
-
                                         <button
                                             onClick={closeModal}
                                             style={{
@@ -214,9 +249,8 @@ const ProductDetail = () => {
                                                 top: 10,
                                                 right: 15,
                                                 fontSize: 32,
-                                                color: 'black',
+                                                color: 'white',
                                                 background: 'transparent',
-
                                                 border: 'none',
                                                 cursor: 'pointer',
                                                 zIndex: 10,
@@ -242,194 +276,165 @@ const ProductDetail = () => {
                                         modules={[Thumbs]}
                                         className='mainSwiper'
                                     >
-
                                         {images.map((img, idx) => (
                                             <SwiperSlide key={idx}>
-                                                <img src={`${backend_url}${img}`} alt={`Product ${idx}`} style={{ cursor: 'zoom-in' }} onClick={() => openModal(img)} className="mainImg" width="100%" />
-
-                                                <div className="wishlist_icon" onClick={() => handleWishlist(fetchProduct)} >
+                                                <img 
+                                                    src={`${backend_url}${img}`} 
+                                                    alt={`Product ${idx}`} 
+                                                    style={{ cursor: 'zoom-in' }} 
+                                                    onClick={() => openModal(img)} 
+                                                    className="mainImg" 
+                                                    width="100%" 
+                                                />
+                                                <div className="wishlist_icon" onClick={() => handleWishlist(fetchProduct)}>
                                                     <IoMdHeartEmpty className='icon' />
                                                 </div>
-
                                             </SwiperSlide>
                                         ))}
-
                                     </Swiper>
                                 </div>
-
-
-
-
                             </div>
-
                         </div>
                         <div className="col-half">
-
                             <div className="product_detailpage_contant">
-
-
-
                                 <div className='rating_review'>
                                     <MdOutlineStarPurple500 color='#ffa51f' />
                                     <MdOutlineStarPurple500 color='#ffa51f' />
                                     <MdOutlineStarPurple500 color='#ffa51f' />
                                     <MdOutlineStarPurple500 color='#ffa51f' />
+                                    <MdOutlineStarPurple500 color='#ffa51f' />
+                                    <span className='review_count'>(25 reviews)</span>
                                 </div>
 
-                                <h2>{fetchProduct.name}</h2>
-                                     <div className=''  dangerouslySetInnerHTML={{ __html: fetchProduct.description }} 
-                                        />
+                                <h2 className='product_name'>{fetchProduct.name}</h2>
                                 
-                                {/* <p className='subtitle'>{fetchProduct.description}</p> */}
+                                {fetchProduct.shortDescription && (
+                                    <div className='short-description' 
+                                         dangerouslySetInnerHTML={{ __html: fetchProduct.shortDescription }} 
+                                    />
+                                )}
 
+                                {fetchProduct.productType === 'simple' && (
+                                    <>
+                                        <div className="mrp">
+                                            MRP <span>(inclusive of all taxes)</span>
+                                        </div>
+                                        <div className="price_section">
+                                            <p className='actualPrice'>₹{fetchProduct.discountedPrice}</p>
+                                            <span className='discount_price'>₹{fetchProduct.mrp}</span>
+                                        </div>
+                                    </>
+                                )}
 
-                                {
-                                    fetchProduct.productType === 'simple' && (
-
-                                        <>
-                                            <div className="mrp">
-
-                                                MRP <span>(inclusive of all taxes)</span>
-                                            </div>
+                                {fetchProduct.productType === 'variable' && (
+                                    <div className="select_fragnance">
+                                        <h3>Select Fragrance</h3>
+                                        <div className="variant_tabs">
+                                            {fetchProduct.variant?.map((variant, index) => (
+                                                <button
+                                                    key={index}
+                                                    className={`variant_btn ${selectVariant?.variantName === variant.variantName ? 'active' : ''}`}
+                                                    onClick={() => handleVariantSelect(variant)}
+                                                >
+                                                    {variant.variantName}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        {selectVariant && (
                                             <div className="price_section">
-                                                <p className='actualPrice'>₹{fetchProduct.discountedPrice}</p>
-                                                <span className='discount_price'>₹{fetchProduct.mrp}</span>
-
+                                                <p className='actualPrice'><strong>Price:</strong> ₹{selectVariant.discountPrice}</p>
+                                                <span className='discount_price'>₹{selectVariant.actualPrice}</span>
                                             </div>
-                                        </>
-                                    )
-                                }
-
-
-                                {
-                                    fetchProduct.productType === 'variable' && (
-
-                                        <div className="select_fragnance">
-                                            <h3>Select Fragnance </h3>
-
-                                            <div className="variant_tabs">
-                                                {fetchProduct.variant?.map((variant, index) => (
-                                                    <button
-                                                        key={index}
-                                                        className={`variant_btn ${selectVariant?.variantName === variant.variantName ? 'active' : ''}`}
-                                                        onClick={() => handleVariantSelect(variant)}
-                                                    >
-                                                        {variant.variantName}
-                                                    </button>
-                                                ))}
-
-
-                                            </div>
-                                            {selectVariant && (
-                                                <div className="price_section">
-                                                    <p><strong>Selected Price:</strong> ₹{selectVariant.discountPrice}</p> <span className='discount_price'>₹{selectVariant.actualPrice}</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )
-                                }
+                                        )}
+                                    </div>
+                                )}
 
                                 <div className='categotyName'>
-                                    <b>   Product Type : </b>{fetchProduct.categoryId.map((category) => category.name).join(', ')}
-                                
-                         
+                                    <b>Product Type:</b> {fetchProduct.categoryId?.map((category) => category.name).join(', ') || 'N/A'}
                                 </div>
                                 <div className='categotyName'>
-                                    <b>  SKU : </b>{fetchProduct.sku}
+                                    <b>SKU:</b> {fetchProduct.sku}
                                 </div>
 
-                                <div className='quantity_counter '>
-                                    <span>Quantity :</span>
-
-
+                                <div className='quantity_counter'>
+                                    <span>Quantity:</span>
                                     <div className="quantity">
-
-
-                                        <div className="minus buttons" onClick={handleDecrease} >
-                                            <LuMinus className='icon ' />
+                                        <div className="minus buttons" onClick={handleDecrease}>
+                                            <LuMinus className='icon' />
                                         </div>
-
                                         <div className="quantity_number buttons">
-                                            <input type="number" value={quantity} onChange={(e) => handleQuantity(Number(e.target.value))} min='1' required />
+                                            <input 
+                                                type="number" 
+                                                value={quantity} 
+                                                onChange={(e) => handleQuantity(Number(e.target.value))} 
+                                                min='1' 
+                                            />
                                         </div>
-
                                         <div className="Plus buttons" onClick={handleIncrease}>
                                             <GoPlus className='icon' />
                                         </div>
-
-
                                     </div>
                                 </div>
 
-                                {/* <div className='details_icons'>
-                                    <img src={icons} width='300px' alt="icons" />
-                                </div> */}
-
-
-
                                 <div className="add_to_cart">
-                                    <button className='add_to_cart_btn ' onClick={() => handleAddToCart(fetchProduct, false)} >
+                                    <button className='add_to_cart_btn' onClick={() => handleAddToCart(fetchProduct, false)}>
                                         ADD TO CART
                                     </button>
-
-                                    <button className='buy_name_btn' onClick={() => handleAddToCart(fetchProduct, true)}   >
+                                    <button className='buy_now_btn' onClick={() => handleAddToCart(fetchProduct, true)}>
                                         BUY NOW
                                     </button>
-
                                 </div>
+                                
                                 <div className="shareNow" onClick={handleShare} style={{ cursor: 'pointer' }}>
-                                    Share This Product : <IoShareSocial className='icon' />
+                                    Share This Product: <IoShareSocial className='icon' />
                                 </div>
-
-
+                                
+                                <div className='serviablepincode'>
+                                    <h4>Check Serviceable Pincode</h4>
+                                    <div className='serviable_pincode_box'>
+                                        <input 
+                                            type="text" 
+                                            className='serviceable_pincode' 
+                                            placeholder='Enter 6-digit pincode' 
+                                            value={serviceablePincode}
+                                            onChange={(e) => setServiceablePincode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                                            maxLength={6}
+                                        />
+                                        <button 
+                                            onClick={handleCheckServiceablePincode}
+                                            disabled={isCheckingPincode || !serviceablePincode || serviceablePincode.length !== 6}
+                                            className={isCheckingPincode ? 'checking' : ''}
+                                        >
+                                            {isCheckingPincode ? 'Checking...' : 'Check'}
+                                        </button>
+                                    </div>
+                                    
+                                    {pincodeMessage && (
+                                        <div className={`pincode-message ${pincodeMessageType}`}>
+                                            {pincodeMessage}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-
-
-
                         </div>
-
-
-
                     </div>
-
-
-
                 </div>
 
                 <div className="product_desription">
                     <div className='container'>
-
-                        <div>
-                            <div className='agarbatti_img'>
-                               
-                                <h2>  Product Description </h2>
-                            </div>
-
+                        <div className='agarbatti_img'>
+                            <h2>Product Description</h2>
                         </div>
-
-                         <div  dangerouslySetInnerHTML={{ __html: fetchProduct.description }} 
-                                         />
-
-                        {/* <p>
-                            {fetchProduct.description}
-                        </p> */}
+                        {fetchProduct.description && (
+                            <div className='description-content' 
+                                 dangerouslySetInnerHTML={{ __html: fetchProduct.description }} 
+                            />
+                        )}
                     </div>
-
-
                 </div>
-
             </div>
 
-            {/*  incense process */}
-
-            {/* <IncenseProcess /> */}
-
             <RelatedProduct />
-
-
-
-
-
         </>
     )
 }

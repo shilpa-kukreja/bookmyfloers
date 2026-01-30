@@ -22,7 +22,10 @@ const Header = () => {
         wishlist,
         searchProduct,
         user,
-        logout
+        logout,
+        openFilter,
+        setOpenFilter
+        
     } = useContext(ShopContext);
 
     const [showMenu, setShowMenu] = useState(false);
@@ -42,6 +45,7 @@ const Header = () => {
     const totalCartItem = cart.reduce((p, item) => p + item.quantity, 0);
     const totalWishlistItem = wishlist.length;
     const results = searchProduct(searchInput);
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
     // Close dropdowns when clicking outside
     useEffect(() => {
@@ -72,6 +76,14 @@ const Header = () => {
 
     const getSubCategory = (categoryId) => {
         return subcategory.filter((sub) => String(sub.categoryId._id) === String(categoryId));
+    };
+
+    const toggleCategoryMenu = () => {
+        setShowMenu(false);
+        if(windowWidth < 576){
+            setOpenFilter(true);
+        }
+        
     };
 
 
@@ -150,7 +162,7 @@ const Header = () => {
                                     <Link onClick={() => setShowMenu(false)} to='/about-us'>About Us</Link>
                                 </li>
                                 <li className='dropdown'>
-                                    <Link to='/shop' onClick={() => setShowMenu(false)}>All Category</Link>
+                                    <Link to='/shop' onClick={() => toggleCategoryMenu()}>All Category</Link>
                                     <div className="dropdown_contant">
                                         {showCategory && (
                                             <div className="bmc_category">
@@ -184,7 +196,7 @@ const Header = () => {
                                     </div>
                                 </li>
                                 <li>
-                                    <Link to='/shop' onClick={() => setShowMenu(false)}>Shop Now</Link>
+                                    <Link to='/shop' onClick={() => setShowMenu(false) }>Shop Now</Link>
                                 </li>
                                 <li>
                                     <Link to='/blogs' onClick={() => setShowMenu(false)}>Blog</Link>

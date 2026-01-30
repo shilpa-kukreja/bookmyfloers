@@ -13,6 +13,7 @@ import blogRouter from "./routes/blogeRoute.js";
 import contactRouter from "./routes/contactRoutes.js";
 import orderRouter from "./routes/orderRoutes.js";
 import bannerRouter from "./routes/bannerRoutes.js";
+import serviceablePincodeRouter from "./routes/serviceablePincodeRoute.js";
 
 
 dotenv.config();
@@ -41,6 +42,8 @@ app.use("/api/contact", contactRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/", productRouter);
 app.use("/api/banner", bannerRouter);
+app.use("/api/pincode", serviceablePincodeRouter);
+
 
 // MongoDB Connection
 mongoose

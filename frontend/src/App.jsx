@@ -18,6 +18,7 @@ import Checkout from './Pages/Checkout'
 import BlogDetail from './Pages/BlogDetail'
 import PrivacyPolicy from './Pages/PrivacyPolicy'
 import TermCondition from './Pages/TermCondition'
+import Category from './Pages/Category'
 import { Link } from 'react-router-dom'
 import LogIn from './Componant/LogIn'
 import SignUp from './Componant/SignUp'
@@ -65,13 +66,10 @@ const App = () => {
           <Route path='/blog/:slug' element={<BlogDetail />} />
           <Route path='/shop' element={<Shop />} />
           <Route path="/:categorySlug" element={<Shop />} />
-            <Route path="/:categorySlug/:subcategorySlug" element={<Shop />} />
-
-
-
-
+          <Route path="/:categorySlug/:subcategorySlug" element={<Shop />} />
           <Route path='/login' element={<LogIn />} />
           <Route path='/signup' element={<SignUp />} />
+          <Route path='/category' element={<Category />} />
 
           {/* <Route path="/shop/category/:categoryId" element={<Shop />} /> */}
 

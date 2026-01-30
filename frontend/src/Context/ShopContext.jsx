@@ -26,6 +26,7 @@ const ShopContextProvider = (props) => {
   const [product, setProduct] = useState([]);
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [user, setUser] = useState(null);
+  const [openFilter, setOpenFilter] = useState(false)
     // Function to verify token and set user
   const verifyToken = async () => {
    
@@ -490,7 +491,9 @@ const ShopContextProvider = (props) => {
     clearPrice,
     selectedPrices,
     getFilterProductByPrice,
-    backend_url
+    backend_url,
+    openFilter,
+    setOpenFilter
   }
 
 
