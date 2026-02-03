@@ -125,7 +125,7 @@ const AddProduct = () => {
   const handleMainImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 2 * 1024 * 1024) {
+      if (file.size > 10 * 1024 * 1024) {
         setFileErrors(prev => ({ ...prev, image: 'Image size should be less than 2MB' }));
         return;
       }
@@ -152,7 +152,7 @@ const AddProduct = () => {
     }
 
     const validFiles = files.filter(file => {
-      if (file.size > 2 * 1024 * 1024) {
+      if (file.size > 10 * 1024 * 1024) {
         newErrors.push(`Image ${file.name} exceeds 2MB`);
         return false;
       }
