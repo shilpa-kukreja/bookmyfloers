@@ -122,6 +122,8 @@ const styles = {
     color: "#b30059",
     backgroundColor: "rgba(255, 240, 245, 0.7)",
     padding: "40px 60px",
+    width: "100vw",
+    maxHeight: "100vh",
     borderRadius: "20px",
     backdropFilter: "blur(8px)",
     boxShadow: "0 10px 30px rgba(255, 105, 180, 0.3)",
@@ -147,7 +149,8 @@ const styles = {
     position: "absolute",
     top: 0,
     left: 0,
-    width: "100%",
+    width: "99vw",
+    overflow: "hidden",
     height: "100%",
     zIndex: 20,
     pointerEvents: "none", // allow clicking through to overlay if needed
