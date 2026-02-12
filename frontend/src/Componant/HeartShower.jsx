@@ -146,7 +146,7 @@ const styles = {
     color: "#80004c",
   },
   heartCanvas: {
-    position: "fixed",
+    position: "absolute",
     top: 0,
     left: 0,
     width: "99vw",
