@@ -8,13 +8,14 @@ import BestsellerSlide from './BestsellerSlide'
 import Blog from '../Componant/Blog'
 import MiddleBanner from './MiddleBanner'
 import InstaSlider from './InstaSlider'
+import HeartShower from '../Componant/HeartShower'
 
 const Home = () => {
   return (
     <div>
 
        <div className="">
-
+        <HeartShower />
         <HomeSlider />
         <ShowCategory/>
         <ProductSlider/>
