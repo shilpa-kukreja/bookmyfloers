@@ -15,7 +15,7 @@ const Home = () => {
     <div>
 
        <div className="">
-        <HeartShower />
+        {/* <HeartShower /> */}
         <HomeSlider />
         <ShowCategory/>
         <ProductSlider/>
