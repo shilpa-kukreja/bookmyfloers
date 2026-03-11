@@ -13,9 +13,6 @@ import banner1 from '../assets/Image/bookmyshow/logo/mainbanner/banner1.jpg'
 import banner2 from '../assets/Image/bookmyshow/logo/mainbanner/banner2.jpg'
 import banner3 from '../assets/Image/bookmyshow/logo/mainbanner/main3.jpg'
 
-// import banner1 from '../assets/Image/bookmyshow/logo/mainbanner/banner1.webp'
-// import banner2 from '../assets/Image/bookmyshow/logo/mainbanner/banner2.webp'
-
 const HomeSlider = () => {
     const [banners, setBanners] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -27,9 +24,6 @@ const HomeSlider = () => {
         { image: banner1, link: '', status: true, position: 1 },
         { image: banner2, link: '', status: true, position: 2 },
         { image: banner3, link: '', status: true, position: 3 }
-        
-        // { image: banner1, link: '', status: true, position: 1 },
-        // { image: banner2, link: '', status: true, position: 2 }
     ];
 
     useEffect(() => {
