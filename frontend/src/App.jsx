@@ -38,7 +38,7 @@ const App = () => {
   return (
     <div
       style={{
-        // backgroundImage: `url(${maintexture})`,
+        backgroundImage: `url(${maintexture})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center center',
         backgroundRepeat: 'no-repeat',
