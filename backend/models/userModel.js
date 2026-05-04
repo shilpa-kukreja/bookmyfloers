@@ -13,8 +13,7 @@ const userSchema = new mongoose.Schema({
         unique: true
     },
     mobile : {
-        type: Number,
-        required: true
+        type: Number
          
     },
     password: String,

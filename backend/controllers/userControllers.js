@@ -295,6 +295,42 @@ export const login = async (req, res) => {
     }
 }
 
+export const loginOrRegister = async (req, res) => {
+    try {
+        const { name, email } = req.body;
+
+        if (!name || !email) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+
+        if (!validator.isEmail(email)) {
+            return res.status(400).json({ message: "Invalid email format" });
+        }
+
+        let user = await userModel.findOne({ email });
+
+        if (!user) {
+            user = await userModel.create({
+                name,
+                email
+            });
+        }
+
+        const token = jwt.sign({ userId: user._id }, process.env.SECRET_KEY,
+            { expiresIn: '7d' });
+        const { password, ...userWithoutPassword } = user._doc || user;
+
+        res.status(200).json({ message: "Logged in successfully", user: userWithoutPassword, token });
+    }
+    catch (err) {
+        if (err.code === 11000) {
+            return res.status(400).json({ message: "Email already in use" });
+        }
+
+        res.status(500).json({ message: err.message });
+    }
+}
+
 export const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
