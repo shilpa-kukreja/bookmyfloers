@@ -15,13 +15,17 @@ import orderRouter from "./routes/orderRoutes.js";
 import bannerRouter from "./routes/bannerRoutes.js";
 import serviceablePincodeRouter from "./routes/serviceablePincodeRoute.js";
 
-
 dotenv.config();
 
 const app = express();
 
 // Enable CORS
-app.use(cors());
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  }),
+);
 
 // Parse JSON requests
 app.use(express.json());
@@ -43,7 +47,6 @@ app.use("/api/order", orderRouter);
 app.use("/api/", productRouter);
 app.use("/api/banner", bannerRouter);
 app.use("/api/pincode", serviceablePincodeRouter);
-
 
 // MongoDB Connection
 mongoose
