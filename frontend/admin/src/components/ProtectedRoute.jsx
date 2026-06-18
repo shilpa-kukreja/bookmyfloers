@@ -10,7 +10,7 @@ const backend_url = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     const verifyToken = async () => {
       try {
-        await axios.get(`${backend_url}/api/auth/verify-token`, {
+        await axios.get(`${backend_url}/api/user/verify-token`, {
           headers: {
             Authorization: `Bearer ${token}`
           }

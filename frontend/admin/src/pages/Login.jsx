@@ -19,7 +19,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${backend_url}/api/auth/admin-login`, {
+      const response = await axios.post(`${backend_url}/api/user/admin-login`, {
         email,
         password
       });

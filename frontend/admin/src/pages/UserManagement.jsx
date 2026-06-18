@@ -25,7 +25,7 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.post(`${backend_url}/api/auth/alluser`);
+      const response = await axios.post(`${backend_url}/api/user/alluser`);
       setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -125,7 +125,7 @@ const UserManagement = () => {
   // Handle delete user
   const handleDelete = async () => {
     try {
-      await axios.get(`${backend_url}/api/auth/removeuser/${userToDelete._id}`);
+      await axios.get(`${backend_url}/api/user/removeuser/${userToDelete._id}`);
       setUsers(users.filter((u) => u._id !== userToDelete._id));
       toast.success('User deleted successfully');
       setIsDeleteModalOpen(false);
